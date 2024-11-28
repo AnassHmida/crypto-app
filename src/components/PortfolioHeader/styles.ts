@@ -1,11 +1,7 @@
 import {StyleSheet} from 'react-native';
-import {colors} from '../common/colors';
+import {colors} from '../../styles/common/colors';
 
 export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   totalValue: {
     padding: 16,
   },
@@ -33,8 +29,5 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginHorizontal: 16,
     marginBottom: 8,
-  },
-  listContent: {
-    flexGrow: 1,
   },
 }); 
