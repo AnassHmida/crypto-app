@@ -3,7 +3,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './types';
 import TabNavigator from './TabNavigator';
-import CryptoDetailsScreen from '../screens/CryptoDetailsScreen';
+import CryptoDetailsScreen from '../screens/CryptoDetails';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

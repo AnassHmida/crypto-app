@@ -2,8 +2,8 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {MainTabParamList} from './types';
-import PortfolioScreen from '../screens/PortfolioScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import PortfolioScreen from '../screens/Portfolio';
+import SettingsScreen from '../screens/Settings';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
