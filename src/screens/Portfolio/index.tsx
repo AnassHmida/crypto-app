@@ -1,5 +1,5 @@
-import React from 'react';
-import {FlatList} from 'react-native';
+import React, {useEffect} from 'react';
+import {FlatList, RefreshControl} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {styles} from './styles';
@@ -15,8 +15,12 @@ type PortfolioScreenNavigationProp = NativeStackNavigationProp<
 >;
 
 const PortfolioScreen = () => {
-  const {assets, totalValue} = useCryptoStore();
+  const {assets, totalValue, isLoading} = useCryptoStore();
   const navigation = useNavigation<PortfolioScreenNavigationProp>();
+
+  const handleRefresh = () => {
+    console.log('Refreshing...');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -28,6 +32,7 @@ const PortfolioScreen = () => {
             symbol={item.symbol}
             amount={item.amount}
             value={item.value}
+            percentageChange={item.percentageChange}
             onPress={() => 
               navigation.navigate('CryptoDetails', {
                 cryptoId: item.symbol.toLowerCase(),
@@ -35,8 +40,11 @@ const PortfolioScreen = () => {
             }
           />
         )}
-         ListHeaderComponent={<PortfolioHeader totalValue={totalValue} />}
+        ListHeaderComponent={<PortfolioHeader totalValue={totalValue} />}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />
+        }
       />
     </SafeAreaView>
   );
