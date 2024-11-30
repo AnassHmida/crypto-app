@@ -9,7 +9,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
   return (
-    <NavigationContainer>
+     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
           name="MainTabs"

@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {colors} from '../../styles/common/colors';
+import {colors} from '../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -40,5 +40,12 @@ export const styles = StyleSheet.create({
   },
   negative: {
     color: colors.error,
+  },
+  deleteAction: {
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 64,
+    height: '100%',
   },
 }); 

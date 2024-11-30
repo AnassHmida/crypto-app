@@ -20,7 +20,9 @@ const AssetItem = ({
   const isPositive = percentageChange >= 0;
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity 
+    testID="asset-item" 
+    style={styles.container} onPress={onPress}>
       <View style={styles.leftSection}>
         <Text style={styles.symbol}>{symbol}</Text>
         <Text style={[

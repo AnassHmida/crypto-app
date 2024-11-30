@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {colors} from '../../styles/common/colors';
+import {colors} from '../../styles/colors';
 
 export const styles = StyleSheet.create({
   totalValue: {
@@ -37,5 +37,16 @@ export const styles = StyleSheet.create({
     marginTop: 16,
     marginBottom: 8,
     color: colors.text.primary,
+  },
+  assetsTitleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  addButton: {
+    padding: 8,
   },
 }); 

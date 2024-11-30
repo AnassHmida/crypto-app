@@ -21,7 +21,6 @@ interface PortfolioStore {
 
   assets: Asset[];
   totalValue: number;
-  currency: string;
   isLoading: boolean;
   error: string | null;
   settings: Settings;
@@ -47,7 +46,6 @@ const useCryptoStore = create<PortfolioStore>()(
         },
       ],
       totalValue: 8888.8888,
-      currency: 'DZD',
       isLoading: false,
       error: null,
       settings: {
@@ -117,6 +115,7 @@ const useCryptoStore = create<PortfolioStore>()(
       },
       updateSettings: (newSettings) => {
         set(state => ({
+          ...(newSettings.currency ? { currency: newSettings.currency } : {}),
           settings: {
             ...state.settings,
             ...newSettings,
@@ -130,7 +129,6 @@ const useCryptoStore = create<PortfolioStore>()(
       partialize: (state) => ({
         assets: state.assets,
         settings: state.settings,
-        currency: state.currency,
       }),
     }
   )

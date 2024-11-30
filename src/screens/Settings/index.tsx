@@ -1,64 +1,57 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, Switch} from 'react-native';
+import {View, Text, Switch} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
 import useCryptoStore from '../../store/useCryptoStore';
 import {styles} from './styles';
-import { colors } from '../../styles/common/colors';
+import CurrencySelector from '../../components/settings/CurrencySelector';
+import SettingSwitch from '../../components/common/SettingSwitch';
 
 const AVAILABLE_CURRENCIES = ['DZD', 'USD', 'EUR', 'GBP'];
 
 const SettingsScreen = () => {
-  const {currency, settings, updateSettings} = useCryptoStore();
+  const {settings, updateSettings} = useCryptoStore();
+
+  const handlePriceAlertsChange = () => {
+    updateSettings({ priceAlerts: !settings.priceAlerts });
+  };
+
+  const handleCurrencySelect = (curr: string) => {
+    console.log('Updating currency to:', curr);
+    updateSettings({ currency: curr });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.section}>
+      <View>
         <Text style={styles.sectionTitle}>Currency Preferences</Text>
-        {AVAILABLE_CURRENCIES.map((curr) => (
-          <TouchableOpacity
-            key={curr}
-            style={styles.currencyItem}
-            onPress={() => updateSettings({ currency: curr })}>
-            <Text style={styles.currencyText}>{curr}</Text>
-            {currency === curr && (
-              <Icon name="checkmark" size={24} color={colors.primary} />
-            )}
-          </TouchableOpacity>
-        ))}
+        <View style={styles.section}>
+          <CurrencySelector
+            currencies={AVAILABLE_CURRENCIES}
+            selectedCurrency={settings.currency}
+            onSelect={handleCurrencySelect}
+          />
+        </View>
       </View>
 
-      <View style={styles.section}>
+      <View>
         <Text style={styles.sectionTitle}>Notifications</Text>
-        <View style={styles.settingItem}>
-          <Text style={styles.settingText}>Price Alerts</Text>
-          <Switch
+        <View style={styles.section}>
+          <SettingSwitch
+            testID="price-alerts-switch"
+            label="Price Alerts"
             value={settings.priceAlerts}
-            onValueChange={(value) => 
-              updateSettings({ priceAlerts: value })
-            }
-          />
-        </View>
-        <View style={styles.settingItem}>
-          <Text style={styles.settingText}>Portfolio Updates</Text>
-          <Switch
-            value={settings.portfolioAlerts}
-            onValueChange={(value) =>
-              updateSettings({ portfolioAlerts: value })
-            }
+            onValueChange={handlePriceAlertsChange}
           />
         </View>
       </View>
 
-      <View style={styles.section}>
+      <View>
         <Text style={styles.sectionTitle}>Auto-Refresh</Text>
-        <View style={styles.settingItem}>
-          <Text style={styles.settingText}>Real-time Updates</Text>
-          <Switch
+        <View style={styles.section}>
+          <SettingSwitch
+            label="Real-time Updates"
             value={settings.realTimeUpdates}
-            onValueChange={(value) =>
-              updateSettings({ realTimeUpdates: value })
-            }
+            onValueChange={(value) => updateSettings({ realTimeUpdates: value })}
           />
         </View>
       </View>

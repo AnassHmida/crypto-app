@@ -1,13 +1,20 @@
-import React, {useEffect} from 'react';
-import {FlatList, RefreshControl} from 'react-native';
+import React from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {styles} from './styles';
 import useCryptoStore from '../../store/useCryptoStore';
 import AssetItem from '../../components/AssetItem';
 import PortfolioHeader from '../../components/PortfolioHeader';
+import RefreshableList from '../../components/common/RefreshableList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/types';
+
+export interface Asset {
+  symbol: string;
+  amount: number;
+  value: number;
+  percentageChange: number;
+}
 
 type PortfolioScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -22,29 +29,29 @@ const PortfolioScreen = () => {
     console.log('Refreshing...');
   };
 
+  const renderAsset = (asset: Asset) => (
+    <AssetItem
+      symbol={asset.symbol}
+      amount={asset.amount}
+      value={asset.value}
+      percentageChange={asset.percentageChange}
+      onPress={() => 
+        navigation.navigate('CryptoDetails', {
+          cryptoId: asset.symbol.toLowerCase(),
+        })
+      }
+    />
+  );
+
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
+      <RefreshableList
         data={assets}
-        keyExtractor={item => item.symbol}
-        renderItem={({item}) => (
-          <AssetItem
-            symbol={item.symbol}
-            amount={item.amount}
-            value={item.value}
-            percentageChange={item.percentageChange}
-            onPress={() => 
-              navigation.navigate('CryptoDetails', {
-                cryptoId: item.symbol.toLowerCase(),
-              })
-            }
-          />
-        )}
+        renderItem={renderAsset}
+        isLoading={isLoading}
+        onRefresh={handleRefresh}
         ListHeaderComponent={<PortfolioHeader totalValue={totalValue} />}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={handleRefresh} />
-        }
+        keyExtractor={item => item.symbol}
       />
     </SafeAreaView>
   );
