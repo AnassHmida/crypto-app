@@ -20,7 +20,7 @@ const TabNavigator = () => {
             iconName = focused ? 'settings' : 'settings-outline';
           }
 
-          return <Icon name={iconName} size={size} color={color} />;
+          return <Icon testID="icon" name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#2196F3',
         tabBarInactiveTintColor: 'gray',

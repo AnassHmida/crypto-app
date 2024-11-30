@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {colors} from '../../styles/common/colors';
+import {colors} from '../../styles/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -24,6 +24,26 @@ export const styles = StyleSheet.create({
   filterText: {
     fontSize: 16,
   },
+  priceContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray.light,
+  },
+  currentPrice: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  percentageChange: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  positive: {
+    color: colors.success,
+  },
+  negative: {
+    color: colors.error,
+  },
   chartContainer: {
     flex: 1,
     backgroundColor: colors.gray.light,
@@ -39,6 +59,8 @@ export const styles = StyleSheet.create({
   },
   balanceContainer: {
     padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: colors.gray.light,
   },
   balanceTitle: {
     fontSize: 18,
