@@ -11,6 +11,7 @@ type CryptoDetailsRouteProp = RouteProp<RootStackParamList, 'CryptoDetails'>;
 const CryptoDetailsScreen = () => {
   const route = useRoute<CryptoDetailsRouteProp>();
   const {cryptoId} = route.params;
+  const settings = useCryptoStore(state => state.settings);
   
   const asset = useCryptoStore(state => 
     state.assets.find(a => a.symbol.toLowerCase() === cryptoId)
@@ -36,14 +37,14 @@ const CryptoDetailsScreen = () => {
       </View>
 
       <View style={styles.priceContainer}>
-        <Text style={styles.currentPrice}>
-          DZD {asset.currentPrice.toFixed(2)}
-        </Text>
+      <Text style={styles.currentPrice}>
+  {settings.currency} {asset.currentPrice.toFixed(2)}
+</Text>
         <Text style={[
           styles.percentageChange,
           isPositive ? styles.positive : styles.negative,
         ]}>
-          {isPositive ? '+' : ''}{asset.percentageChange.toFixed(2)}%
+          {isPositive ? '+' : ''}{asset.percentageChange?.toFixed(2)}%
         </Text>
       </View>
 
@@ -54,10 +55,10 @@ const CryptoDetailsScreen = () => {
       <View style={styles.balanceContainer}>
         <Text style={styles.balanceTitle}>Your balance</Text>
         <Text style={styles.balanceAmount}>
-          DZD {asset.value.toFixed(2)}
+          {settings.currency} {asset.value?.toFixed(2) ?? '0.00'}
         </Text>
         <Text style={styles.cryptoAmount}>
-          {asset.amount} {asset.symbol}
+          {asset.amount ?? 0} {asset.symbol}
         </Text>
       </View>
     </SafeAreaView>

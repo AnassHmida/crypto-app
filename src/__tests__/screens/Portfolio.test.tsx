@@ -1,36 +1,163 @@
 import React from 'react';
-import {render} from '@testing-library/react-native';
+import { render, fireEvent, act } from '@testing-library/react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import PortfolioScreen from '../../screens/Portfolio';
-import * as useCryptoStoreModule from '../../store/useCryptoStore';
+import useCryptoStore from '../../store/useCryptoStore';
+import socketService from '../../services/socket';
+
+
+const mockUseCryptoStore = useCryptoStore as unknown as jest.MockedFunction<typeof useCryptoStore>;
+
+jest.mock('@react-navigation/native', () => ({
+  ...jest.requireActual('@react-navigation/native'),
+  useNavigation: jest.fn(),
+}));
+
 
 jest.mock('../../store/useCryptoStore');
-const mockUseCryptoStore = jest.fn();
-(useCryptoStoreModule.default as unknown as jest.Mock) = mockUseCryptoStore;
+
+
+jest.mock('../../services/socket', () => ({
+  connect: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
+const mockAssets = [
+  {
+    symbol: 'BTC',
+    amount: 1.5,
+    currentPrice: 50000,
+    percentageChange: 2.5,
+    value: 75000,
+  },
+  {
+    symbol: 'ETH',
+    amount: 10,
+    currentPrice: 3000,
+    percentageChange: -1.2,
+    value: 30000,
+  },
+];
 
 describe('PortfolioScreen', () => {
+  const mockNavigate = jest.fn();
+
   beforeEach(() => {
-    mockUseCryptoStore.mockReturnValue({
-      assets: [
-        {symbol: 'BTC', amount: 1, value: 40000, percentageChange: 2.5},
-      ],
-      totalValue: 40000,
-      isLoading: false,
-      settings: {
-        currency: 'DZD',
-        priceAlerts: true,
-        portfolioAlerts: true,
-        realTimeUpdates: true,
-      }
+    jest.clearAllMocks();
+    
+
+    (useNavigation as jest.Mock).mockReturnValue({
+      navigate: mockNavigate,
+    });
+    
+
+    mockUseCryptoStore.mockImplementation((selector) => {
+      const store = {
+        assets: mockAssets,
+        totalValue: 105000,
+        isLoading: false,
+        settings: {
+          currency: 'USD',
+          realTimeUpdates: true,
+          priceAlerts: false
+        },
+        exchangeRates: {},
+        addAsset: jest.fn(),
+        removeAsset: jest.fn(),
+        updateAssetAmount: jest.fn(),
+        updatePrices: jest.fn(),
+        updateSettings: jest.fn(),
+        convertAmount: jest.fn(),
+      };
+      return typeof selector === 'function' ? selector(store) : store;
     });
   });
 
-  it('renders portfolio value', () => {
-    const {getByText} = render(<PortfolioScreen />);
-    expect(getByText('DZD 40000')).toBeTruthy();
+  it('renders correctly with assets', () => {
+    const { getByText } = render(
+      <NavigationContainer>
+        <PortfolioScreen />
+      </NavigationContainer>
+    );
+
+    expect(getByText('BTC')).toBeTruthy();
+    expect(getByText('ETH')).toBeTruthy();
+    expect(getByText('Portfolio Value')).toBeTruthy();
   });
 
-  it('renders asset list', () => {
-    const {getByText} = render(<PortfolioScreen />);
-    expect(getByText('BTC')).toBeTruthy();
+  it('connects to socket on mount and disconnects on unmount', () => {
+    const { unmount } = render(
+      <NavigationContainer>
+        <PortfolioScreen />
+      </NavigationContainer>
+    );
+
+    expect(socketService.connect).toHaveBeenCalledTimes(1);
+    
+    unmount();
+    expect(socketService.disconnect).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles refresh correctly', () => {
+    const { getByTestId } = render(
+      <NavigationContainer>
+        <PortfolioScreen />
+      </NavigationContainer>
+    );
+
+    const flatList = getByTestId('refreshable-list');
+    
+    act(() => {
+      fireEvent(flatList, 'refresh');
+    });
+
+    expect(socketService.disconnect).toHaveBeenCalledTimes(1);
+    expect(socketService.connect).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows loading state', () => {
+    mockUseCryptoStore.mockImplementation((selector) => {
+      const store = {
+        assets: mockAssets,
+        totalValue: 0,
+        isLoading: false,
+        settings: {
+          currency: 'USD',
+          realTimeUpdates: true,
+          priceAlerts: false
+        },
+        exchangeRates: {},
+        addAsset: jest.fn(),
+        removeAsset: jest.fn(),
+        updateAssetAmount: jest.fn(),
+        updatePrices: jest.fn(),
+        updateSettings: jest.fn(),
+        convertAmount: jest.fn(),
+      };
+      return typeof selector === 'function' ? selector(store) : store;
+    });
+
+    const { getByTestId } = render(
+      <NavigationContainer>
+        <PortfolioScreen />
+      </NavigationContainer>
+    );
+
+    expect(getByTestId('refreshable-list')).toBeTruthy();
+  });
+
+  it('navigates to CryptoDetails when asset is pressed', () => {
+    const { getByText } = render(
+      <NavigationContainer>
+        <PortfolioScreen />
+      </NavigationContainer>
+    );
+
+    fireEvent.press(getByText('BTC'));
+
+    expect(mockNavigate).toHaveBeenCalledWith('CryptoDetails', {
+      cryptoId: 'btc',
+    });
   });
 });

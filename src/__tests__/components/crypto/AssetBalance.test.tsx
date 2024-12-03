@@ -7,13 +7,13 @@ describe('AssetBalance', () => {
     value: 45000,
     amount: 1.5,
     symbol: 'BTC',
-    currency: 'DZD'
+    currency: 'USD'
   };
 
   it('renders balance information', () => {
     const {getByText} = render(<AssetBalance {...props} />);
     expect(getByText('Your balance')).toBeTruthy();
-    expect(getByText('DZD 45000.00')).toBeTruthy();
+    expect(getByText('USD 45000.00')).toBeTruthy();
     expect(getByText('1.5 BTC')).toBeTruthy();
   });
 }); 

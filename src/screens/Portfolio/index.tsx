@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {styles} from './styles';
@@ -8,12 +8,14 @@ import PortfolioHeader from '../../components/PortfolioHeader';
 import RefreshableList from '../../components/common/RefreshableList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/types';
+import socketService from '../../services/socket';
 
 export interface Asset {
   symbol: string;
   amount: number;
-  value: number;
+  currentPrice: number;
   percentageChange: number;
+  value: number;
 }
 
 type PortfolioScreenNavigationProp = NativeStackNavigationProp<
@@ -22,11 +24,22 @@ type PortfolioScreenNavigationProp = NativeStackNavigationProp<
 >;
 
 const PortfolioScreen = () => {
-  const {assets, totalValue, isLoading} = useCryptoStore();
+  const {assets, totalValue, isLoading, settings} = useCryptoStore();
   const navigation = useNavigation<PortfolioScreenNavigationProp>();
 
+  useEffect(() => {
+    socketService.connect();
+
+
+    return () => {
+      socketService.disconnect();
+    };
+  }, []);
+
   const handleRefresh = () => {
-    console.log('Refreshing...');
+    console.log('🔄 Refreshing...');
+    socketService.disconnect();
+    socketService.connect();
   };
 
   const renderAsset = (asset: Asset) => (
@@ -35,6 +48,7 @@ const PortfolioScreen = () => {
       amount={asset.amount}
       value={asset.value}
       percentageChange={asset.percentageChange}
+      currency={settings.currency}
       onPress={() => 
         navigation.navigate('CryptoDetails', {
           cryptoId: asset.symbol.toLowerCase(),

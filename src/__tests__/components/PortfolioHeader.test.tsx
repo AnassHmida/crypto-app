@@ -5,7 +5,7 @@ import PortfolioHeader from '../../components/PortfolioHeader';
 describe('PortfolioHeader', () => {
   it('renders portfolio value correctly', () => {
     const {getByText} = render(<PortfolioHeader totalValue={50000} />);
-    expect(getByText('DZD 50000')).toBeTruthy();
+    expect(getByText('USD 50000.00')).toBeTruthy();
     expect(getByText('Portfolio Value')).toBeTruthy();
   });
 

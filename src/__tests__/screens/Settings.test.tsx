@@ -18,7 +18,7 @@ describe('SettingsScreen', () => {
     jest.clearAllMocks();
     mockUseCryptoStore.mockImplementation(() => ({
       settings: {
-        currency: 'DZD',
+        currency: 'USD',
         priceAlerts: true,
         portfolioAlerts: false,
         realTimeUpdates: true,
