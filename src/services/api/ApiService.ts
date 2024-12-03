@@ -1,15 +1,15 @@
 import axios, { AxiosInstance } from 'axios';
+import { COINAPI_REST_URL, COINAPI_KEY } from '@env';
 
 class ApiService {
   private static instance: ApiService;
   private api: AxiosInstance;
-  private readonly COINAPI_KEY = '';
 
   private constructor() {
     this.api = axios.create({
-      baseURL: 'https://rest.coinapi.io/v1',
+      baseURL: COINAPI_REST_URL,
       headers: {
-        'X-CoinAPI-Key': this.COINAPI_KEY
+        'X-CoinAPI-Key': COINAPI_KEY
       }
     });
   }

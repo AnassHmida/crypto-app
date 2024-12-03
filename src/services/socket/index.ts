@@ -1,10 +1,11 @@
 import useCryptoStore from "../../store/useCryptoStore";
 import { SUPPORTED_CRYPTOS } from '../../constants/supportedCryptos';
+import { COINAPI_WS_URL, COINAPI_KEY } from '@env';
 
 class SocketService {
   private ws: WebSocket | null = null;
-  private readonly WS_URL = 'wss://ws.coinapi.io/v1/';
-  private readonly API_KEY = '';
+  private readonly WS_URL = COINAPI_WS_URL;
+  private readonly API_KEY = COINAPI_KEY;
   private lastUpdate: Record<string, { 
     timestamp: number;
     price: number;
