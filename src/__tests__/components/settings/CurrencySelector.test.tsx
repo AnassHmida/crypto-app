@@ -3,7 +3,7 @@ import {render, fireEvent} from '@testing-library/react-native';
 import CurrencySelector from '../../../components/settings/CurrencySelector';
 
 describe('CurrencySelector', () => {
-  const currencies = ['DZD', 'USD', 'EUR', 'GBP'];
+  const currencies = ['USD', 'EUR', 'GBP'];
   const onSelect = jest.fn();
 
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe('CurrencySelector', () => {
         onSelect={onSelect}
       />
     );
-    expect(getAllByTestId('currency-option')).toHaveLength(4);
+    expect(getAllByTestId('currency-option')).toHaveLength(3);
   });
 
   it('highlights selected currency', () => {
@@ -37,7 +37,7 @@ describe('CurrencySelector', () => {
     const {getByTestId} = render(
       <CurrencySelector
         currencies={currencies}
-        selectedCurrency="DZD"
+        selectedCurrency="USD"
         onSelect={onSelect}
       />
     );

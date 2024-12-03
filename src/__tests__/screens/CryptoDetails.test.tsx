@@ -5,7 +5,7 @@ import useCryptoStore from '../../store/useCryptoStore';
 
 const mockUseCryptoStore = useCryptoStore as unknown as jest.MockedFunction<typeof useCryptoStore>;
 
-// Mock the navigation hook
+
 jest.mock('@react-navigation/native', () => ({
   useRoute: () => ({
     params: {
@@ -14,7 +14,6 @@ jest.mock('@react-navigation/native', () => ({
   }),
 }));
 
-// Mock the store
 jest.mock('../../store/useCryptoStore', () => ({
   __esModule: true,
   default: jest.fn(),
@@ -31,17 +30,39 @@ describe('CryptoDetailsScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseCryptoStore.mockImplementation(() => mockAsset);
+    mockUseCryptoStore.mockImplementation((selector) => {
+      const store = {
+        assets: [mockAsset],
+        settings: {
+          currency: 'USD',
+          realTimeUpdates: false,
+          priceAlerts: false
+        },
+        exchangeRates: {},
+        totalValue: 0,
+        isLoading: false,
+        addAsset: jest.fn(),
+        removeAsset: jest.fn(),
+        updateAsset: jest.fn(),
+        fetchExchangeRates: jest.fn(),
+        setCurrency: jest.fn(),
+        updateAssetAmount: jest.fn(),
+        updatePrices: jest.fn(),
+        updateSettings: jest.fn(),
+        convertAmount: jest.fn(),
+      };
+      return selector(store);
+    });
   });
 
   it('renders asset details correctly', () => {
     const {getByText} = render(<CryptoDetailsScreen />);
     
     expect(getByText('BTC')).toBeTruthy();
-    expect(getByText('DZD 30000.00')).toBeTruthy();
+    expect(getByText('USD 30000.00')).toBeTruthy();
     expect(getByText('+2.50%')).toBeTruthy();
-    expect(getByText('DZD 45000.00')).toBeTruthy();
-    expect(getByText(/1.5 BTC/)).toBeTruthy();
+    expect(getByText('USD 45000.00')).toBeTruthy();
+    expect(getByText('1.5 BTC')).toBeTruthy();
   });
 
   it('handles negative percentage changes', () => {
@@ -49,14 +70,59 @@ describe('CryptoDetailsScreen', () => {
       ...mockAsset,
       percentageChange: -2.5,
     };
-    mockUseCryptoStore.mockImplementation(() => negativeAsset);
+    
+    mockUseCryptoStore.mockImplementation((selector) => {
+      const store = {
+        assets: [negativeAsset],
+        settings: {
+          currency: 'USD',
+          realTimeUpdates: false,
+          priceAlerts: false
+        },
+        exchangeRates: {},
+        totalValue: 0,
+        isLoading: false,
+        addAsset: jest.fn(),
+        removeAsset: jest.fn(),
+        updateAsset: jest.fn(),
+        fetchExchangeRates: jest.fn(),
+        setCurrency: jest.fn(),
+        updateAssetAmount: jest.fn(),
+        updatePrices: jest.fn(),
+        updateSettings: jest.fn(),
+        convertAmount: jest.fn(),
+      };
+      return selector(store);
+    });
 
     const {getByText} = render(<CryptoDetailsScreen />);
     expect(getByText('-2.50%')).toBeTruthy();
   });
 
   it('renders not found message when asset doesnt exist', () => {
-    mockUseCryptoStore.mockImplementation(() => undefined);
+    mockUseCryptoStore.mockImplementation((selector) => {
+      const store = {
+        assets: [],
+        settings: {
+          currency: 'USD',
+          realTimeUpdates: false,
+          priceAlerts: false
+        },
+        exchangeRates: {},
+        totalValue: 0,
+        isLoading: false,
+        addAsset: jest.fn(),
+        removeAsset: jest.fn(),
+        updateAsset: jest.fn(),
+        fetchExchangeRates: jest.fn(),
+        setCurrency: jest.fn(),
+        updateAssetAmount: jest.fn(),
+        updatePrices: jest.fn(),
+        updateSettings: jest.fn(),
+        convertAmount: jest.fn(),
+      };
+      return selector(store);
+    });
     
     const {getByText} = render(<CryptoDetailsScreen />);
     expect(getByText('Asset not found')).toBeTruthy();

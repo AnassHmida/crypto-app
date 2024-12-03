@@ -35,7 +35,7 @@ describe('CryptoStore', () => {
     });
     expect(result.current.settings.currency).toBe('USD');
     
-    // Test other settings
+
     act(() => {
       result.current.updateSettings({ priceAlerts: false });
     });

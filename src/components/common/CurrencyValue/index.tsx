@@ -7,7 +7,7 @@ interface CurrencyValueProps {
   style?: object;
 }
 
-const CurrencyValue = ({value, currency = 'DZD', style}: CurrencyValueProps) => (
+const CurrencyValue = ({value, currency = 'USD', style}: CurrencyValueProps) => (
   <Text style={style}>
     {currency} {value.toFixed(2)}
   </Text>

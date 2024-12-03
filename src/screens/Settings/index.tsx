@@ -6,8 +6,12 @@ import {styles} from './styles';
 import CurrencySelector from '../../components/settings/CurrencySelector';
 import SettingSwitch from '../../components/common/SettingSwitch';
 
-const AVAILABLE_CURRENCIES = ['DZD', 'USD', 'EUR', 'GBP'];
-
+export const AVAILABLE_CURRENCIES = [ 'USD', 'EUR', 'GBP'];
+interface Settings {
+  currency: string;
+  realTimeUpdates: boolean;
+  priceAlerts: boolean; 
+}
 const SettingsScreen = () => {
   const {settings, updateSettings} = useCryptoStore();
 

@@ -10,13 +10,11 @@ interface CurrencySelectorProps {
   onSelect: (currency: string) => void;
 }
 
-const CurrencySelector = ({
+const CurrencySelector = React.memo(({
   currencies,
   selectedCurrency,
   onSelect,
 }: CurrencySelectorProps) => {
-
-    console.log("selected currency === ",selectedCurrency)
   return (
     <View>
       {currencies.map((currency) => (
@@ -43,6 +41,6 @@ const CurrencySelector = ({
       ))}
     </View>
   );
-};
+});
 
 export default CurrencySelector; 

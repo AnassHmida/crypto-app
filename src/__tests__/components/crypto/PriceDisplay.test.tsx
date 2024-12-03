@@ -7,11 +7,11 @@ describe('PriceDisplay', () => {
     const props = {
       currentPrice: 45000,
       percentageChange: 2.5,
-      currency: 'DZD'
+      currency: 'USD'
     };
     
     const {getByText} = render(<PriceDisplay {...props} />);
-    expect(getByText('DZD 45000.00')).toBeTruthy();
+    expect(getByText('USD 45000.00')).toBeTruthy();
     expect(getByText('+2.5%')).toBeTruthy();
   });
 
@@ -19,7 +19,7 @@ describe('PriceDisplay', () => {
     const props = {
       currentPrice: 45000,
       percentageChange: -2.5,
-      currency: 'DZD'
+      currency: 'USD'
     };
     
     const {getByText} = render(<PriceDisplay {...props} />);
