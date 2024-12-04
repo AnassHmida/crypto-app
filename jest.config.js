@@ -3,7 +3,7 @@ module.exports = {
   setupFiles: ['<rootDir>/jest.setup.js'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-vector-icons)/)',
+    'node_modules/(?!(react-native|@react-native-community/datetimepicker|@react-native|@react-navigation|react-native-vector-icons|react-native-chart-kit)/)',
   ],
   moduleNameMapper: {
     '\\.svg': '<rootDir>/__mocks__/svgMock.js',

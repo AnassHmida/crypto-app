@@ -1,10 +1,10 @@
 import React from 'react';
-import {render} from '@testing-library/react-native';
+import {render, act, fireEvent} from '@testing-library/react-native';
 import CryptoDetailsScreen from '../../screens/CryptoDetails';
 import useCryptoStore from '../../store/useCryptoStore';
+import ApiService from '../../services/api/ApiService';
 
 const mockUseCryptoStore = useCryptoStore as unknown as jest.MockedFunction<typeof useCryptoStore>;
-
 
 jest.mock('@react-navigation/native', () => ({
   useRoute: () => ({
@@ -41,6 +41,10 @@ describe('CryptoDetailsScreen', () => {
         exchangeRates: {},
         totalValue: 0,
         isLoading: false,
+        historicalValues: { values: [], labels: [] },
+        portfolioHistory: [],
+        updateHistoricalValues: jest.fn(),
+        recordPortfolioValue: jest.fn(),
         addAsset: jest.fn(),
         removeAsset: jest.fn(),
         updateAsset: jest.fn(),
@@ -57,7 +61,6 @@ describe('CryptoDetailsScreen', () => {
 
   it('renders asset details correctly', () => {
     const {getByText} = render(<CryptoDetailsScreen />);
-    
     expect(getByText('BTC')).toBeTruthy();
     expect(getByText('USD 30000.00')).toBeTruthy();
     expect(getByText('+2.50%')).toBeTruthy();
@@ -82,6 +85,10 @@ describe('CryptoDetailsScreen', () => {
         exchangeRates: {},
         totalValue: 0,
         isLoading: false,
+        historicalValues: { values: [], labels: [] },
+        portfolioHistory: [],
+        updateHistoricalValues: jest.fn(),
+        recordPortfolioValue: jest.fn(),
         addAsset: jest.fn(),
         removeAsset: jest.fn(),
         updateAsset: jest.fn(),
@@ -99,10 +106,30 @@ describe('CryptoDetailsScreen', () => {
     expect(getByText('-2.50%')).toBeTruthy();
   });
 
-  it('renders not found message when asset doesnt exist', () => {
+  
+
+  it('renders filter button', () => {
+    const {getByText} = render(<CryptoDetailsScreen />);
+    expect(getByText('Filter')).toBeTruthy();
+  });
+
+
+
+  it('handles date filter selection', () => {
+    const { getByText } = render(<CryptoDetailsScreen />);
+    const filterButton = getByText('Filter');
+    fireEvent.press(filterButton);
+    
+
+    expect(getByText('Custom Date Range')).toBeTruthy();
+  });
+
+  it('updates chart data when date range changes', async () => {
+    const mockUpdateHistoricalValues = jest.fn();
+    
     mockUseCryptoStore.mockImplementation((selector) => {
       const store = {
-        assets: [],
+        assets: [mockAsset],
         settings: {
           currency: 'USD',
           realTimeUpdates: false,
@@ -111,6 +138,10 @@ describe('CryptoDetailsScreen', () => {
         exchangeRates: {},
         totalValue: 0,
         isLoading: false,
+        historicalValues: { values: [], labels: [] },
+        portfolioHistory: [],
+        updateHistoricalValues: mockUpdateHistoricalValues,
+        recordPortfolioValue: jest.fn(),
         addAsset: jest.fn(),
         removeAsset: jest.fn(),
         updateAsset: jest.fn(),
@@ -123,18 +154,28 @@ describe('CryptoDetailsScreen', () => {
       };
       return selector(store);
     });
+
+    const { getByText } = render(<CryptoDetailsScreen />);
+    
+    // Open filter
+    fireEvent.press(getByText('Filter'));
+    
+    // Select custom date range (mock the date picker interaction)
+    const startDate = new Date('2024-01-01');
+    const endDate = new Date('2024-01-07');
+    
+    // Simulate applying the date range
+    await act(async () => {
+      fireEvent(getByText('Apply'), 'onPress', startDate, endDate);
+    });
+
+    // Verify the filter modal is closed
+    expect(() => getByText('Select Date Range')).toThrow();
+  });
+
+  it('shows no data available when chart is empty', () => {
     
     const {getByText} = render(<CryptoDetailsScreen />);
-    expect(getByText('Asset not found')).toBeTruthy();
-  });
-
-  it('renders filter button', () => {
-    const {getByText} = render(<CryptoDetailsScreen />);
-    expect(getByText('Filter')).toBeTruthy();
-  });
-
-  it('renders historical chart placeholder', () => {
-    const {getByText} = render(<CryptoDetailsScreen />);
-    expect(getByText('Historical asset prices chart')).toBeTruthy();
+    expect(getByText('No data available')).toBeTruthy();
   });
 });

@@ -51,5 +51,10 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     }),
   }));
   
+  jest.mock('@react-native-community/datetimepicker', () => {
+    const mockComponent = require('react-native/jest/mockComponent');
+    return mockComponent('@react-native-community/datetimepicker');
+  });
+  
 
   
