@@ -30,23 +30,24 @@ export const styles = StyleSheet.create({
     color: colors.text.secondary,
     fontSize: 14,
   },
-  assetsTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 8,
-    color: colors.text.primary,
-  },
   assetsTitleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 16,
+    paddingHorizontal: 16,
     marginTop: 16,
     marginBottom: 8,
   },
-  addButton: {
+  actionButton: {
     padding: 8,
+  },
+  assetsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text.primary,
+  },
+  titleContainer: {
+    flex: 1,
+    paddingVertical: 8,
   },
 }); 

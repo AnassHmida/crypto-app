@@ -116,7 +116,6 @@ const useCryptoStore = create<PortfolioStore>()(
         });
       },
       updatePrices: (updates) => {
-        console.log('💰 Received price updates:', updates);
         set(state => {
           const assets = state.assets.map(asset => {
             const update = updates[asset.symbol];
