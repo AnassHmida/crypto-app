@@ -30,7 +30,7 @@ describe('SettingsScreen', () => {
   it('renders all settings sections', () => {
     const {getByText} = render(<SettingsScreen />);
     expect(getByText('Currency Preferences')).toBeTruthy();
-    expect(getByText('Notifications')).toBeTruthy();
+    expect(getByText('Price Alerts')).toBeTruthy();
     expect(getByText('Auto-Refresh')).toBeTruthy();
   });
 

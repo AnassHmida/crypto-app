@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getExchangeRates } from '../services/exchangeRates';
+import notificationService from '../services/notifications';
 
 interface Asset {
   symbol: string;
@@ -22,6 +23,14 @@ interface PortfolioHistory {
   value: number;
 }
 
+interface PriceAlert {
+  id: string;
+  symbol: string;
+  targetPrice: number;
+  isAbove: boolean;
+  createdAt: string;
+}
+
 interface PortfolioStore {
   assets: Asset[];
   settings: Settings;
@@ -33,6 +42,7 @@ interface PortfolioStore {
   };
   isLoading: boolean;
   portfolioHistory: PortfolioHistory[];
+  alerts: PriceAlert[];
 
   addAsset: (symbol: string, amount: number) => void;
   removeAsset: (symbol: string) => void;
@@ -42,6 +52,9 @@ interface PortfolioStore {
   convertAmount: (amount: number, fromCurrency: string, toCurrency: string) => number;
   updateHistoricalValues: (value: number) => void;
   recordPortfolioValue: (value: number) => void;
+  addAlert: (symbol: string, targetPrice: number, isAbove: boolean) => void;
+  removeAlert: (id: string) => void;
+  checkAlerts: (prices: Record<string, { price: number }>) => void;
 }
 
 const useCryptoStore = create<PortfolioStore>()(
@@ -69,6 +82,7 @@ const useCryptoStore = create<PortfolioStore>()(
       },
       isLoading: false,
       portfolioHistory: [],
+      alerts: [],
 
       addAsset: (symbol, amount) => {
         set(state => {
@@ -134,25 +148,14 @@ const useCryptoStore = create<PortfolioStore>()(
             return asset;
           });
       
+
+          state.checkAlerts(updates);
+          
           const newTotalValue = assets.reduce((total, asset) => total + asset.value, 0);
-      
-          const now = new Date();
-    
-            const newHistory = [...state.portfolioHistory, {
-              timestamp: now.toISOString(),
-              value: newTotalValue
-            }];
-            
-            const thirtyDaysAgo = new Date();
-            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            const filteredHistory = newHistory.filter(entry => 
-              new Date(entry.timestamp) > thirtyDaysAgo
-            );
-            console.log('📈 Filtered portfolio history:', filteredHistory);
-            return { 
+                  // console.log('📈 Filtered portfolio history:', newTotalValue);
+             return { 
               assets,
               totalValue: newTotalValue,
-              portfolioHistory: filteredHistory
             };
           
 
@@ -276,6 +279,56 @@ const useCryptoStore = create<PortfolioStore>()(
           };
         });
       },
+      addAlert: (symbol: string, targetPrice: number, isAbove: boolean) => {
+        set(state => ({
+          alerts: [...state.alerts, {
+            id: Date.now().toString(),
+            symbol,
+            targetPrice,
+            isAbove,
+            createdAt: new Date().toISOString()
+          }]
+        }));
+      },
+
+      removeAlert: (id: string) => {
+        set(state => ({
+          alerts: state.alerts.filter(alert => alert.id !== id)
+        }));
+      },
+
+      checkAlerts: (prices) => {
+        console.log('checking alerts')
+        const state = get();
+        if (!state.settings.priceAlerts) return;
+
+        const triggeredAlerts: string[] = [];
+
+        state.alerts.forEach(alert => {
+          const currentPrice = prices[alert.symbol]?.price;
+          if (currentPrice) {
+            if (
+              (alert.isAbove && currentPrice >= alert.targetPrice) ||
+              (!alert.isAbove && currentPrice <= alert.targetPrice)
+            ) {
+              console.log(`🚨 Alert triggered for ${alert.symbol}!`);
+              // Send notification
+              notificationService.sendPriceAlert(
+                alert.symbol,
+                alert.targetPrice,
+                alert.isAbove
+              );
+              triggeredAlerts.push(alert.id);
+            }
+          }
+        });
+
+        if (triggeredAlerts.length > 0) {
+          set(state => ({
+            alerts: state.alerts.filter(alert => !triggeredAlerts.includes(alert.id))
+          }));
+        }
+      }
     }),
     {
       name: 'crypto-storage',
@@ -288,6 +341,7 @@ const useCryptoStore = create<PortfolioStore>()(
         historicalValues: state.historicalValues,
         isLoading: state.isLoading,
         portfolioHistory: state.portfolioHistory,
+        alerts: state.alerts,
       }),
     }
   )

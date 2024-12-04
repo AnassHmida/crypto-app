@@ -5,11 +5,16 @@
  * @format
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
+import notificationService from './src/services/notifications';
 
-function App(): React.JSX.Element {
+const App = () => {
+  useEffect(() => {
+    notificationService.configure();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <RootNavigator />
