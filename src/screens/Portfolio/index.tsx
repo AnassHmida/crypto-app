@@ -144,9 +144,7 @@ const PortfolioScreen = () => {
         keyExtractor={item => item.symbol}
       />
 
-      <Text testID="selected-count">
-        {`${selectedAssets.length} ${selectedAssets.length === 1 ? 'item' : 'items'} selected`}
-      </Text>
+  
 
       <AddAssetModal
         visible={isAddModalVisible}

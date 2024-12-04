@@ -63,9 +63,7 @@ const PortfolioHeader = ({
       </View>
 
       <View testID="selection-mode-header">
-        <Text testID="selected-count">
-          {`${selectedCount} ${selectedCount === 1 ? 'item' : 'items'} selected`}
-        </Text>
+    
       </View>
     </>
   );

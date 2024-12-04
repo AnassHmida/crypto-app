@@ -116,4 +116,13 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Add this configuration to handle the duplicate classes
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core:1.9.0'
+            // Exclude the old support library
+            exclude group: 'com.android.support', module: 'support-compat'
+        }
+    }
 }
