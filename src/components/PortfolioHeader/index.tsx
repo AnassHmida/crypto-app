@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text} from 'react-native';
 import {styles} from './styles';
 import useCryptoStore from '../../store/useCryptoStore';
+import PortfolioChart from '../portfolio/PortfolioChart';
 
 interface PortfolioHeaderProps {
   totalValue: number;
@@ -9,6 +10,7 @@ interface PortfolioHeaderProps {
 
 const PortfolioHeader = ({totalValue}: PortfolioHeaderProps) => {
   const currency = useCryptoStore(state => state.settings.currency);
+  const historicalValues = useCryptoStore(state => state.historicalValues);
   
   return (
     <>
@@ -20,7 +22,8 @@ const PortfolioHeader = ({totalValue}: PortfolioHeaderProps) => {
       </View>
       
       <View style={styles.chartContainer}>
-        <Text style={styles.chartLabel}>Historical portfolio value chart</Text>
+        <PortfolioChart
+        />
       </View>
 
       <Text style={styles.assetsTitle}>Assets</Text>

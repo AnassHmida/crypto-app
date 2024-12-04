@@ -17,12 +17,22 @@ interface Settings {
   priceAlerts: boolean; 
 }
 
+interface PortfolioHistory {
+  timestamp: string;
+  value: number;
+}
+
 interface PortfolioStore {
   assets: Asset[];
   settings: Settings;
   exchangeRates: Record<string, number>;
   totalValue: number;
+  historicalValues: {
+    values: number[];
+    labels: string[];
+  };
   isLoading: boolean;
+  portfolioHistory: PortfolioHistory[];
 
   addAsset: (symbol: string, amount: number) => void;
   removeAsset: (symbol: string) => void;
@@ -30,6 +40,8 @@ interface PortfolioStore {
   updatePrices: (updates: Record<string, { price: number, percentageChange: number }>) => void;
   updateSettings: (newSettings: Partial<Settings>) => void;
   convertAmount: (amount: number, fromCurrency: string, toCurrency: string) => number;
+  updateHistoricalValues: (value: number) => void;
+  recordPortfolioValue: (value: number) => void;
 }
 
 const useCryptoStore = create<PortfolioStore>()(
@@ -51,7 +63,12 @@ const useCryptoStore = create<PortfolioStore>()(
       },
       exchangeRates: {},
       totalValue: 2.42 * 95900,
+      historicalValues: {
+        values: [],
+        labels: [],
+      },
       isLoading: false,
+      portfolioHistory: [],
 
       addAsset: (symbol, amount) => {
         set(state => {
@@ -99,6 +116,7 @@ const useCryptoStore = create<PortfolioStore>()(
         });
       },
       updatePrices: (updates) => {
+        console.log('💰 Received price updates:', updates);
         set(state => {
           const assets = state.assets.map(asset => {
             const update = updates[asset.symbol];
@@ -119,10 +137,27 @@ const useCryptoStore = create<PortfolioStore>()(
       
           const newTotalValue = assets.reduce((total, asset) => total + asset.value, 0);
       
-          return { 
-            assets,
-            totalValue: newTotalValue 
-          };
+          const now = new Date();
+    
+            const newHistory = [...state.portfolioHistory, {
+              timestamp: now.toISOString(),
+              value: newTotalValue
+            }];
+            
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const filteredHistory = newHistory.filter(entry => 
+              new Date(entry.timestamp) > thirtyDaysAgo
+            );
+            console.log('📈 Filtered portfolio history:', filteredHistory);
+            return { 
+              assets,
+              totalValue: newTotalValue,
+              portfolioHistory: filteredHistory
+            };
+          
+
+          
         });
       },
       updateSettings: async (newSettings) => {
@@ -209,6 +244,39 @@ const useCryptoStore = create<PortfolioStore>()(
         
         return final;
       },
+      updateHistoricalValues: (value) => {
+        set(state => {
+          const date = new Date();
+          const label = `${date.getDate()}/${date.getMonth() + 1}`;
+          
+          return {
+            historicalValues: {
+              values: [...state.historicalValues.values, value],
+              labels: [...state.historicalValues.labels, label],
+            }
+          };
+        });
+      },
+      recordPortfolioValue: (value: number) => {
+        const now = new Date();
+        console.log('📊 Recording portfolio value:', {
+          timestamp: now.toISOString(),
+          value: value
+        });
+
+        set(state => {
+          const newEntry = {
+            timestamp: now.toISOString(),
+            value: value
+          };
+
+          const newHistory = [...state.portfolioHistory, newEntry];
+  
+          return {
+            portfolioHistory: newHistory
+          };
+        });
+      },
     }),
     {
       name: 'crypto-storage',
@@ -218,7 +286,9 @@ const useCryptoStore = create<PortfolioStore>()(
         settings: state.settings,
         exchangeRates: state.exchangeRates,
         totalValue: state.totalValue,
+        historicalValues: state.historicalValues,
         isLoading: state.isLoading,
+        portfolioHistory: state.portfolioHistory,
       }),
     }
   )

@@ -69,6 +69,10 @@ describe('PortfolioScreen', () => {
         updatePrices: jest.fn(),
         updateSettings: jest.fn(),
         convertAmount: jest.fn(),
+        historicalValues: { values: [], labels: [] },
+        portfolioHistory: [],
+        updateHistoricalValues: jest.fn(),
+        recordPortfolioValue: jest.fn(),
       };
       return typeof selector === 'function' ? selector(store) : store;
     });
@@ -134,6 +138,10 @@ describe('PortfolioScreen', () => {
         updatePrices: jest.fn(),
         updateSettings: jest.fn(),
         convertAmount: jest.fn(),
+        historicalValues: { values: [], labels: [] },
+        portfolioHistory: [],
+        updateHistoricalValues: jest.fn(),
+        recordPortfolioValue: jest.fn(),
       };
       return typeof selector === 'function' ? selector(store) : store;
     });
