@@ -2,10 +2,6 @@ import {StyleSheet} from 'react-native';
 import {colors} from '../../styles/colors';
 
 export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -17,13 +13,47 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     width: '80%',
-    alignItems: 'center',
+    maxHeight: '80%',
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
     color: colors.text.primary,
+  },
+  cryptoList: {
+    width: '100%',
+    flexGrow: 0,
+    marginBottom: 15,
+  },
+  cryptoOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: colors.gray.light,
+  },
+  selectedCrypto: {
+    backgroundColor: colors.primary + '20',
+    borderColor: colors.primary,
+    borderWidth: 1,
+  },
+  cryptoIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  cryptoInfo: {
+    flex: 1,
+  },
+  cryptoSymbol: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text.primary,
+  },
+  cryptoName: {
+    fontSize: 14,
+    color: colors.text.secondary,
   },
   input: {
     width: '100%',
@@ -54,56 +84,6 @@ export const styles = StyleSheet.create({
   buttonText: {
     color: colors.card,
     fontWeight: 'bold',
-  },
-  selectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray.light,
-  },
-  selectionText: {
-    fontSize: 16,
-    color: colors.text.primary,
-  },
-  deleteButton: {
-    padding: 8,
-  },
-  cryptoList: {
-    width: '100%',
-    maxHeight: 200,
-    marginBottom: 15,
-  },
-  cryptoOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: colors.gray.light,
-  },
-  selectedCrypto: {
-    backgroundColor: colors.primary + '20', // 20 is opacity
-    borderColor: colors.primary,
-    borderWidth: 1,
-  },
-  cryptoIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  cryptoInfo: {
-    flex: 1,
-  },
-  cryptoSymbol: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.text.primary,
-  },
-  cryptoName: {
-    fontSize: 14,
-    color: colors.text.secondary,
   },
   disabledButton: {
     opacity: 0.5,

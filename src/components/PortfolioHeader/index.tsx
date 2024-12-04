@@ -1,16 +1,29 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, TouchableOpacity} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {styles} from './styles';
 import useCryptoStore from '../../store/useCryptoStore';
 import PortfolioChart from '../portfolio/PortfolioChart';
+import { colors } from '../../styles/colors';
 
 interface PortfolioHeaderProps {
   totalValue: number;
+  onAddPress: () => void;
+  isSelectionMode: boolean;
+  selectedCount: number;
+  onDeletePress: () => void;
+  onHeaderPress: () => void;
 }
 
-const PortfolioHeader = ({totalValue}: PortfolioHeaderProps) => {
+const PortfolioHeader = ({
+  totalValue, 
+  onAddPress, 
+  isSelectionMode,
+  selectedCount,
+  onDeletePress,
+  onHeaderPress
+}: PortfolioHeaderProps) => {
   const currency = useCryptoStore(state => state.settings.currency);
-  const historicalValues = useCryptoStore(state => state.historicalValues);
   
   return (
     <>
@@ -22,13 +35,40 @@ const PortfolioHeader = ({totalValue}: PortfolioHeaderProps) => {
       </View>
       
       <View style={styles.chartContainer}>
-        <PortfolioChart
-        />
+        <PortfolioChart />
       </View>
 
-      <Text style={styles.assetsTitle}>Assets</Text>
+      <View style={styles.assetsTitleContainer}>
+        <TouchableOpacity 
+          style={styles.titleContainer} 
+          onPress={onHeaderPress}
+        >
+          <Text style={styles.assetsTitle}>
+            {isSelectionMode 
+              ? `${selectedCount} ${selectedCount === 1 ? 'item' : 'items'} selected`
+              : 'Assets'
+            }
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={isSelectionMode ? onDeletePress : onAddPress} 
+          style={styles.actionButton}
+        >
+          <Icon 
+            name={isSelectionMode ? "delete" : "add-circle-outline"} 
+            size={24} 
+            color={isSelectionMode ? colors.error : colors.primary} 
+          />
+        </TouchableOpacity>
+      </View>
+
+      <View testID="selection-mode-header">
+        <Text testID="selected-count">
+          {`${selectedCount} ${selectedCount === 1 ? 'item' : 'items'} selected`}
+        </Text>
+      </View>
     </>
   );
 };
 
-export default PortfolioHeader; 
+export default PortfolioHeader;
