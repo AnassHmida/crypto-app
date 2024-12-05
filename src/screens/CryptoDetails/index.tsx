@@ -31,6 +31,9 @@ const CryptoDetailsScreen = () => {
   }>({ prices: [], labels: [] });
   const [isLoading, setIsLoading] = useState(true);
 
+  const chartData = useCryptoStore(state => state.chartData.prices[cryptoId]);
+  const updatePriceChart = useCryptoStore(state => state.updatePriceChart);
+
   useEffect(() => {
     const endDate = new Date();
     const startDate = new Date();
@@ -41,8 +44,8 @@ const CryptoDetailsScreen = () => {
   }, [cryptoId]);
 
   const fetchHistoricalDataWithCustomRange = async (startDate: Date, endDate: Date) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       const response = await ApiService.getInstance().getHistoricalPricesCustomRange(
         cryptoId,
         settings.currency,
@@ -50,22 +53,29 @@ const CryptoDetailsScreen = () => {
         endDate.toISOString()
       );
 
-      if (response) {
-        const prices = response.map((item: any) => item.rate_close);
-        const labels = response.map((item: any) => {
-          const date = new Date(item.time_period_start);
-          const day = date.getDate().toString().padStart(2, '0');
-          const month = (date.getMonth() + 1).toString().padStart(2, '0');
-          return `${day}/${month}`;
-        });
+      const prices = response.map((item: any) => item.rate_close);
+      const labels = response.map((item: any) => {
+        const date = new Date(item.time_period_start);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        return `${day}/${month}`;
+      });
 
-        setHistoricalData({
-          prices,
-          labels
-        });
-      }
+      setHistoricalData({ prices, labels });
+      updatePriceChart(cryptoId, {
+        values: prices,
+        labels,
+        lastUpdated: new Date().toISOString()
+      });
     } catch (error) {
       console.error('Error fetching historical data:', error);
+      // On error, use cached data if available
+      if (chartData?.values.length) {
+        setHistoricalData({
+          prices: chartData.values,
+          labels: chartData.labels
+        });
+      }
     } finally {
       setIsLoading(false);
     }

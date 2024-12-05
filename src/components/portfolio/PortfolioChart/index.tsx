@@ -1,35 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { View, Dimensions } from 'react-native';
+import { View, Dimensions, ActivityIndicator, Text } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
 import ApiService from '../../../services/api/ApiService';
 import useCryptoStore from '../../../store/useCryptoStore';
 import { styles } from './styles';
 import { colors } from '../../../styles/colors';
 
+const CACHE_EXPIRY_TIME = 5 * 60 * 1000; // 5 minutes
+
 const PortfolioChart = () => {
-  const [chartData, setChartData] = useState<{values: number[], labels: string[]}>({
-    values: [],
-    labels: []
-  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const assets = useCryptoStore(state => state.assets);
   const currency = useCryptoStore(state => state.settings.currency);
-
-  const formatToK = (value: number): string => {
-    if (value >= 1000000) {
-      return `${currency}${(value / 1000000).toFixed(1)}M`;
-    } else if (value >= 1000) {
-      return `${currency}${(value / 1000).toFixed(1)}K`;
-    }
-    return `${currency}${value.toFixed(0)}`;
-  };
+  const chartData = useCryptoStore(state => state.chartData.portfolio);
+  const updatePortfolioChart = useCryptoStore(state => state.updatePortfolioChart);
 
   useEffect(() => {
-    fetchPortfolioHistory();
+    loadChartData();
   }, []);
 
+  const loadChartData = async () => {
+    if (chartData.values.length > 0) {
+      const cacheAge = Date.now() - new Date(chartData.lastUpdated).getTime();
+      if (cacheAge < CACHE_EXPIRY_TIME) {
+        setIsLoading(false);
+        return;
+      }
+    }
+    await fetchPortfolioHistory();
+  };
+
   const fetchPortfolioHistory = async () => {
-    if (assets.length === 0) return;
+    if (assets.length === 0) {
+      setIsLoading(false);
+      return;
+    }
 
     const endDate = new Date();
     const startDate = new Date();
@@ -66,11 +73,34 @@ const PortfolioChart = () => {
         new Date(parseInt(timestamp)).toLocaleTimeString()
       );
 
-      setChartData({ values, labels });
+      updatePortfolioChart({
+        values,
+        labels,
+        lastUpdated: new Date().toISOString()
+      });
     } catch (error) {
       console.error('Error fetching portfolio history:', error);
+      setError('Failed to fetch portfolio data');
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container} testID="price-chart">
