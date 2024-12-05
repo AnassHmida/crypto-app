@@ -150,6 +150,60 @@ class ApiService {
       throw error;
     }
   }
+
+  async getPortfolioHistoricalData(assets: Asset[], currency: string) {
+    try {
+      // Get today's date and yesterday's date
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 1);
+
+      // Fetch historical data for each asset
+      const assetHistories = await Promise.all(
+        assets.map(async (asset) => {
+          const history = await this.getHistoricalPricesCustomRange(
+            asset.symbol.toLowerCase(),
+            currency,
+            startDate.toISOString(),
+            endDate.toISOString()
+          );
+          
+          // Map the history to include the asset amount
+          return history.map((dataPoint: any) => ({
+            timestamp: dataPoint.time_period_start,
+            value: dataPoint.rate_close * asset.amount
+          }));
+        })
+      );
+
+      // Combine all histories by timestamp
+      const combinedHistory = this.combineHistoricalData(assetHistories);
+      return combinedHistory;
+    } catch (error) {
+      console.error('Error fetching portfolio historical data:', error);
+      return [];
+    }
+  }
+
+  private combineHistoricalData(assetHistories: any[]) {
+    // Create a map of timestamp to total value
+    const timestampMap = new Map<string, number>();
+
+    assetHistories.forEach(assetHistory => {
+      assetHistory.forEach((dataPoint: any) => {
+        const existing = timestampMap.get(dataPoint.timestamp) || 0;
+        timestampMap.set(dataPoint.timestamp, existing + dataPoint.value);
+      });
+    });
+
+    // Convert map to sorted array
+    return Array.from(timestampMap.entries())
+      .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+      .map(([timestamp, value]) => ({
+        timestamp,
+        value
+      }));
+  }
 }
 
 export default ApiService; 

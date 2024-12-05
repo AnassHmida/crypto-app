@@ -35,13 +35,13 @@ const PriceChart = ({ data, labels, currency }: PriceChartProps) => {
   if (data.length === 0) {
     return (
       <View style={styles.container}>
-        <Text>No data available</Text>
+        <Text testID="no-data-message">No data available</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View testID="price-chart">
       <LineChart
         data={{
           labels: processedLabels,
@@ -85,8 +85,6 @@ const PriceChart = ({ data, labels, currency }: PriceChartProps) => {
           selectedPoint?.index === index ? colors.primary : 'rgba(81, 145, 240, 1)'
         }
       />
-
-      
     </View>
   );
 };

@@ -9,5 +9,6 @@ export const styles = StyleSheet.create({
   },
   chart: {
     borderRadius: 12,
-  }
+  },
+  
 }); 

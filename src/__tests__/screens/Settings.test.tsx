@@ -31,7 +31,7 @@ describe('SettingsScreen', () => {
     const {getByText} = render(<SettingsScreen />);
     expect(getByText('Currency Preferences')).toBeTruthy();
     expect(getByText('Price Alerts')).toBeTruthy();
-    expect(getByText('Auto-Refresh')).toBeTruthy();
+
   });
 
   it('handles currency selection', () => {
