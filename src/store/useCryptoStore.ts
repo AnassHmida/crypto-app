@@ -152,11 +152,14 @@ const useCryptoStore = create<PortfolioStore>()(
           state.checkAlerts(updates);
           
           const newTotalValue = assets.reduce((total, asset) => total + asset.value, 0);
-                  // console.log('📈 Filtered portfolio history:', newTotalValue);
-             return { 
-              assets,
-              totalValue: newTotalValue,
-            };
+          
+          // Record daily value
+          get().recordPortfolioValue(newTotalValue);
+          
+          return { 
+            assets,
+            totalValue: newTotalValue,
+          };
           
 
           
@@ -261,22 +264,38 @@ const useCryptoStore = create<PortfolioStore>()(
       },
       recordPortfolioValue: (value: number) => {
         const now = new Date();
-        console.log('📊 Recording portfolio value:', {
-          timestamp: now.toISOString(),
-          value: value
-        });
+        const today = now.toISOString().split('T')[0]; // Get just the date part
 
         set(state => {
-          const newEntry = {
-            timestamp: now.toISOString(),
-            value: value
-          };
+          // Check if we already have an entry for today
+          const existingTodayEntry = state.portfolioHistory.find(entry => 
+            entry.timestamp.startsWith(today)
+          );
 
-          const newHistory = [...state.portfolioHistory, newEntry];
-  
-          return {
-            portfolioHistory: newHistory
-          };
+          if (existingTodayEntry) {
+            // Update today's entry
+            return {
+              portfolioHistory: state.portfolioHistory.map(entry =>
+                entry.timestamp.startsWith(today)
+                  ? { ...entry, value }
+                  : entry
+              )
+            };
+          } else {
+            // Add new entry for today
+            const newEntry = {
+              timestamp: now.toISOString(),
+              value
+            };
+            
+            // Keep only last 30 days of history
+            const newHistory = [...state.portfolioHistory, newEntry]
+              .slice(-30);
+
+            return {
+              portfolioHistory: newHistory
+            };
+          }
         });
       },
       addAlert: (symbol: string, targetPrice: number, isAbove: boolean) => {

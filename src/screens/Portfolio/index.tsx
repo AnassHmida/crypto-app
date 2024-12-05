@@ -20,6 +20,7 @@ import socketService from '../../services/socket';
 import {colors} from '../../styles/colors';
 import { SUPPORTED_CRYPTOS } from '../../constants/supportedCryptos';
 import AddAssetModal from '../../components/AddAssetModal';
+import {ApiService} from '../../services/api/ApiService';
 
 export interface Asset {
   symbol: string;
@@ -50,10 +51,11 @@ const PortfolioScreen = () => {
     };
   }, []);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     console.log('🔄 Refreshing...');
     socketService.disconnect();
     socketService.connect();
+    await ApiService.getInstance().fetchLatestPrices();
   };
 
   const handleAddPress = () => setIsAddModalVisible(true);

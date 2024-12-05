@@ -29,14 +29,19 @@ const CryptoDetailsScreen = () => {
     prices: number[];
     labels: string[];
   }>({ prices: [], labels: [] });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+    
+    fetchHistoricalDataWithCustomRange(startDate, endDate);
+  }, [cryptoId]);
 
   const fetchHistoricalDataWithCustomRange = async (startDate: Date, endDate: Date) => {
     try {
-      console.log('Fetching data for range:', {
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString()
-      });
       setIsLoading(true);
       const response = await ApiService.getInstance().getHistoricalPricesCustomRange(
         cryptoId,
@@ -61,7 +66,6 @@ const CryptoDetailsScreen = () => {
       }
     } catch (error) {
       console.error('Error fetching historical data:', error);
-      // You might want to add error handling here
     } finally {
       setIsLoading(false);
     }
@@ -95,12 +99,14 @@ const CryptoDetailsScreen = () => {
       <View style={styles.chartContainer}>
         {isLoading ? (
           <ActivityIndicator size="large" color={colors.primary} testID="loading-indicator" />
-        ) : (
+        ) : historicalData.prices.length > 0 ? (
           <PriceChart
             data={historicalData.prices}
             labels={historicalData.labels}
             currency={settings.currency}
           />
+        ) : (
+          <Text style={styles.noDataText} testID="no-data-message">No data available</Text>
         )}
       </View>
 
