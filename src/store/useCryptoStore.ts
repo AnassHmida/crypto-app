@@ -31,6 +31,12 @@ interface PriceAlert {
   createdAt: string;
 }
 
+interface ChartData {
+  values: number[];
+  labels: string[];
+  lastUpdated: string;
+}
+
 interface PortfolioStore {
   assets: Asset[];
   settings: Settings;
@@ -43,6 +49,10 @@ interface PortfolioStore {
   isLoading: boolean;
   portfolioHistory: PortfolioHistory[];
   alerts: PriceAlert[];
+  chartData: {
+    portfolio: ChartData;
+    prices: Record<string, ChartData>;
+  };
 
   addAsset: (symbol: string, amount: number) => void;
   removeAsset: (symbol: string) => void;
@@ -55,6 +65,8 @@ interface PortfolioStore {
   addAlert: (symbol: string, targetPrice: number, isAbove: boolean) => void;
   removeAlert: (id: string) => void;
   checkAlerts: (prices: Record<string, { price: number }>) => void;
+  updatePortfolioChart: (data: ChartData) => void;
+  updatePriceChart: (symbol: string, data: ChartData) => void;
 }
 
 const useCryptoStore = create<PortfolioStore>()(
@@ -83,6 +95,10 @@ const useCryptoStore = create<PortfolioStore>()(
       isLoading: false,
       portfolioHistory: [],
       alerts: [],
+      chartData: {
+        portfolio: { values: [], labels: [], lastUpdated: '' },
+        prices: {}
+      },
 
       addAsset: (symbol, amount) => {
         set(state => {
@@ -347,7 +363,24 @@ const useCryptoStore = create<PortfolioStore>()(
             alerts: state.alerts.filter(alert => !triggeredAlerts.includes(alert.id))
           }));
         }
-      }
+      },
+      updatePortfolioChart: (data) => 
+        set((state) => ({
+          chartData: {
+            ...state.chartData,
+            portfolio: data
+          }
+        })),
+      updatePriceChart: (symbol, data) =>
+        set((state) => ({
+          chartData: {
+            ...state.chartData,
+            prices: {
+              ...state.chartData.prices,
+              [symbol]: data
+            }
+          }
+        })),
     }),
     {
       name: 'crypto-storage',
@@ -361,6 +394,7 @@ const useCryptoStore = create<PortfolioStore>()(
         isLoading: state.isLoading,
         portfolioHistory: state.portfolioHistory,
         alerts: state.alerts,
+        chartData: state.chartData,
       }),
     }
   )
