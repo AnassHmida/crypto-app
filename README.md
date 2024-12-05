@@ -1,79 +1,91 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Crypto Portfolio Tracker
 
-# Getting Started
+A React Native application for real-time cryptocurrency portfolio tracking with offline support and price alerts.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+## Features
 
-## Step 1: Start the Metro Server
+- Real-time cryptocurrency price tracking
+- Portfolio value visualization with historical data
+- Offline support with data persistence
+- Price alerts and notifications
+- Custom date range filtering
+- Multiple currency support
+- Interactive price charts
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+## Technical Architecture
 
-To start Metro, run the following command from the _root_ of your React Native project:
+### State Management
 
-```bash
-# using npm
-npm start
+The application uses Zustand for state management with persistent storage. Key features:
 
-# OR using Yarn
-yarn start
-```
+- Persistent storage using AsyncStorage
+- Cached chart data for offline support
+- Real-time price updates
+- Portfolio history tracking
+- Price alerts management
 
-## Step 2: Start your Application
+### Charts and Data Visualization
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+Two main chart components handle data visualization:
 
-### For Android
+1. **PortfolioChart**: Displays aggregated portfolio value
+   - 24-hour historical data
+   - 5-minute cache for offline support
+   - Automatic data refresh
+   - Combined value calculation
+   - Offline fallback support
 
-```bash
-# using npm
-npm run android
+2. **PriceChart**: Shows individual cryptocurrency prices
+   - Interactive price points
+   - Custom date range support
+   - Responsive design
+   - Cached data fallback
+   - Multiple timeframe support
 
-# OR using Yarn
-yarn android
-```
+### Data Flow
 
-### For iOS
+1. **Price Updates**
+   - Real-time price fetching via WebSocket
+   - Automatic portfolio value recalculation
+   - Price alerts monitoring
+   - Chart data updates with 5-minute cache
 
-```bash
-# using npm
-npm run ios
+2. **Offline Support**
+   - All critical data persisted via Zustand
+   - Automatic fallback to cached data
+   - Graceful error handling for network failures
 
-# OR using Yarn
-yarn ios
-```
+3. **Portfolio History**
+   - Daily portfolio value recording
+   - 30-day historical data retention
+   - Automatic data cleanup
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+## Getting Started
 
-## Step 3: Modifying your App
+1. Clone the repository
 
-Now that you have successfully run the app, let's modify it.
+2. Create a .env file in the root directory with:
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+- COINAPI_KEY=your_api_key_here
+- COINAPI_REST_URL=https://rest.coinapi.io/v1
+- COINAPI_WS_URL=wss://ws.coinapi.io/v1
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+2. Install dependencies:
+   npm install
+3. Start the development server:
+   npm start
+4. Run on iOS/Android:
+   npm run ios
+   # or
+   npm run android
 
-## Congratulations! :tada:
 
-You've successfully run and modified your React Native App. :partying_face:
+## Performance Considerations
 
-### Now what?
+- Chart data cached for 5 minutes
+- Optimized re-renders using React hooks
+- Efficient data structures for quick access
+- Network request batching
+- Automatic cleanup of historical data
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

@@ -37,6 +37,28 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     }),
   }));
   
+  jest.mock('react-native-push-notification', () => ({
+    configure: jest.fn(),
+    onRegister: jest.fn(),
+    onNotification: jest.fn(),
+    addEventListener: jest.fn(),
+    requestPermissions: jest.fn(),
+    createChannel: jest.fn(),
+    Importance: {
+      DEFAULT: 3,
+      HIGH: 4,
+      LOW: 2,
+      MIN: 1,
+      NONE: 0,
+    },
+  }));
+  
+  jest.mock('@react-native-community/push-notification-ios', () => ({
+    addEventListener: jest.fn(),
+    requestPermissions: jest.fn(),
+    getInitialNotification: jest.fn(),
+  }));
+
   jest.mock('@react-navigation/bottom-tabs', () => ({
     createBottomTabNavigator: () => ({
       Navigator: ({ children }) => children,
@@ -50,6 +72,11 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
       Screen: ({ children }) => children,
     }),
   }));
+  
+  jest.mock('@react-native-community/datetimepicker', () => {
+    const mockComponent = require('react-native/jest/mockComponent');
+    return mockComponent('@react-native-community/datetimepicker');
+  });
   
 
   

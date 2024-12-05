@@ -46,12 +46,14 @@ export const styles = StyleSheet.create({
   },
   chartContainer: {
     flex: 1,
-    backgroundColor: colors.gray.light,
-    margin: 16,
     borderRadius: 8,
-    padding: 16,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  noDataText: {
+    fontSize: 16,
+    color: colors.text.secondary,
+    textAlign: 'center',
   },
   chartTitle: {
     fontSize: 16,

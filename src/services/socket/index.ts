@@ -12,7 +12,7 @@ class SocketService {
   }> = {};
   
 
-  private readonly UPDATE_THRESHOLD = 1000;
+  private readonly UPDATE_THRESHOLD = 2000;
 
   connect() {
     try {

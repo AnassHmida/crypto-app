@@ -11,15 +11,27 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.gray.light,
   },
+  selectedContainer: {
+    backgroundColor: colors.primary + '10',
+    borderLeftWidth: 3,
+    borderLeftColor: colors.primary,
+  },
   leftSection: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  symbolContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
   rightSection: {
     alignItems: 'flex-end',
   },
   symbol: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
+    color: colors.text.primary,
     marginBottom: 4,
   },
   amount: {
@@ -33,7 +45,6 @@ export const styles = StyleSheet.create({
   },
   percentageChange: {
     fontSize: 14,
-    fontWeight: '500',
   },
   positive: {
     color: colors.success,
@@ -47,5 +58,8 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     width: 64,
     height: '100%',
+  },
+  checkIcon: {
+    marginRight: 8,
   },
 }); 
