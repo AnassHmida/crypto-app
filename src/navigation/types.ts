@@ -3,6 +3,7 @@ export type RootStackParamList = {
   CryptoDetails: {
     cryptoId: string;
   };
+  Portfolio: undefined;
 };
 
 export type MainTabParamList = {

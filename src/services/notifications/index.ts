@@ -1,4 +1,5 @@
 import PushNotification, { Importance } from 'react-native-push-notification';
+import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import { Platform } from 'react-native';
 
 class NotificationService {
@@ -10,21 +11,37 @@ class NotificationService {
   configure = () => {
     // Configure the notification settings
     PushNotification.configure({
-      onRegister: function (token) {
+      onRegister: function (token: { os: string; token: string }) {
         console.log('TOKEN:', token);
       },
 
-      onNotification: function (notification) {
-        console.log('NOTIFICATION:', notification);
-        notification.finish();
+      onNotification: function (notification: any) {
+        console.log('NOTIFICATION RECEIVED:', notification);
+
+        // Handle foreground notifications for iOS
+        if (Platform.OS === 'ios') {
+          if (notification.foreground) {
+            // Show notification even when app is in foreground
+            PushNotificationIOS.addNotificationRequest({
+              id: String(Date.now()),
+              title: notification.title,
+              body: notification.message,
+              sound: 'default',
+              badge: 1,
+            });
+          }
+        }
+
+ 
+        notification.finish(PushNotificationIOS.FetchResult.NoData);
       },
 
-      onAction: function (notification) {
+      onAction: function (notification: { action: string; [key: string]: any }) {
         console.log('ACTION:', notification.action);
         console.log('NOTIFICATION:', notification);
       },
 
-      onRegistrationError: function(err) {
+      onRegistrationError: function(err: Error) {
         console.error(err.message, err);
       },
 
@@ -40,7 +57,7 @@ class NotificationService {
   }
 
   createDefaultChannels() {
-    // Create the default notification channel
+
     PushNotification.createChannel(
       {
         channelId: 'price-alerts',
@@ -51,39 +68,50 @@ class NotificationService {
         importance: Importance.HIGH,
         vibrate: true,
       },
-      (created) => console.log(`Channel 'price-alerts' created: ${created}`)
+      (created: boolean) => console.log(`Channel 'price-alerts' created: ${created}`)
     );
   }
 
-  // Send a local notification for price alerts
+
   sendPriceAlert = (symbol: string, price: number, isAbove: boolean) => {
-    PushNotification.localNotification({
-      channelId: 'price-alerts',
-      title: '💰 Price Alert',
-      message: `${symbol} is now ${isAbove ? 'above' : 'below'} $${price.toFixed(2)}`,
-      playSound: true,
-      soundName: 'default',
-      importance: Importance.HIGH,
-      vibrate: true,
-      vibration: 300,
-      priority: 'high',
-      autoCancel: true,
-      largeIcon: '', // Android only - set your app icon name
-      smallIcon: '', // Android only - set your app small icon name
-    });
+    if (Platform.OS === 'ios') {
+      // iOS-specific notification
+      PushNotificationIOS.addNotificationRequest({
+        id: String(Date.now()),
+        title: '💰 Price Alert',
+        body: `${symbol} is now ${isAbove ? 'above' : 'below'} $${price.toFixed(2)}`,
+        sound: 'default',
+        badge: 1,
+        userInfo: {
+          symbol,
+          price,
+          isAbove,
+        },
+      });
+    } else {
+      PushNotification.localNotification({
+        channelId: 'price-alerts',
+        title: '💰 Price Alert',
+        message: `${symbol} is now ${isAbove ? 'above' : 'below'} $${price.toFixed(2)}`,
+        playSound: true,
+        soundName: 'default',
+        importance: Importance.HIGH,
+        priority: 'high',
+      });
+    }
   }
 
-  // Cancel all pending notifications
+
   cancelAllNotifications = () => {
     PushNotification.cancelAllLocalNotifications();
   }
 
-  // Cancel a specific notification by ID
+
   cancelNotification = (notificationId: string) => {
     PushNotification.cancelLocalNotification(notificationId);
   }
 
-  // Schedule a notification for the future
+
   scheduleNotification = (title: string, message: string, date: Date) => {
     PushNotification.localNotificationSchedule({
       channelId: 'price-alerts',

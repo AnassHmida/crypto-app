@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import { COINAPI_REST_URL, COINAPI_KEY } from '@env';
+import { Asset } from '../../store/useAssetStore';
 
 class ApiService {
   private static instance: ApiService;
@@ -118,12 +119,12 @@ class ApiService {
 
       console.log(`Using period_id: ${period_id} for ${daysDiff} days range`);
 
-      // Set UTC times for consistency
       start.setUTCHours(0, 0, 0, 0);
       end.setUTCHours(23, 59, 59, 999);
-      
+      console.log('symbol ==== ',symbol)
+      console.log('currency ==== ',currency)
       const response = await axios.get(
-        `${COINAPI_REST_URL}/exchangerate/${symbol}/${currency}/history`,
+        `${COINAPI_REST_URL}/exchangerate/${symbol}/USD/history`,
         {
           params: {
             period_id,
@@ -153,12 +154,11 @@ class ApiService {
 
   async getPortfolioHistoricalData(assets: Asset[], currency: string) {
     try {
-      // Get today's date and yesterday's date
+
       const endDate = new Date();
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 1);
 
-      // Fetch historical data for each asset
+
       const assetHistories = await Promise.all(
         assets.map(async (asset) => {
           const history = await this.getHistoricalPricesCustomRange(

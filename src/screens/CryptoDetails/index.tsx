@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {View, Text, TouchableOpacity, ActivityIndicator} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {RootStackParamList} from '../../navigation/types';
-import useCryptoStore from '../../store/useCryptoStore';
+import useAssetStore from '../../store/useAssetStore';
+import useSettingsStore from '../../store/useSettingsStore';
+import useChartStore from '../../store/useChartStore';
 import PriceChart from '../../components/crypto/PriceChart';
 import ApiService from '../../services/api/ApiService';
 import {styles} from './styles';
@@ -13,120 +15,97 @@ import PriceDisplay from '../../components/crypto/PriceDisplay';
 import BalanceDisplay from '../../components/crypto/BalanceDisplay';
 
 type CryptoDetailsRouteProp = RouteProp<RootStackParamList, 'CryptoDetails'>;
-type TimeRange = '1D' | '1W' | '1M' | '1Y';
 
 const CryptoDetailsScreen = () => {
   const route = useRoute<CryptoDetailsRouteProp>();
-  const {cryptoId} = route.params;
-  const settings = useCryptoStore(state => state.settings);
-  
-  const symbol = useCryptoStore(state => 
-    state.assets.find(a => a.symbol.toLowerCase() === cryptoId)?.symbol
-  );
+  const { cryptoId  } = route.params;
+  const asset = cryptoId
+  const settings = useSettingsStore(state => state.settings);
+  const { updatePriceChart } = useChartStore();
+  const priceChart = useChartStore(state => state.priceCharts[cryptoId]);
 
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [historicalData, setHistoricalData] = useState<{
-    prices: number[];
-    labels: string[];
-  }>({ prices: [], labels: [] });
   const [isLoading, setIsLoading] = useState(true);
 
-  const chartData = useCryptoStore(state => state.chartData.prices[cryptoId]);
-  const updatePriceChart = useCryptoStore(state => state.updatePriceChart);
-
-  useEffect(() => {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
-    
-    fetchHistoricalDataWithCustomRange(startDate, endDate);
-  }, [cryptoId]);
-
-  const fetchHistoricalDataWithCustomRange = async (startDate: Date, endDate: Date) => {
+  const handleDateRangeApply = async (startDate: Date, endDate: Date) => {
+    setIsFilterVisible(false);
     setIsLoading(true);
     try {
-      const response = await ApiService.getInstance().getHistoricalPricesCustomRange(
+      const data = await ApiService.getInstance().getHistoricalPricesCustomRange(
         cryptoId,
         settings.currency,
         startDate.toISOString(),
         endDate.toISOString()
       );
-
-      const prices = response.map((item: any) => item.rate_close);
-      const labels = response.map((item: any) => {
-        const date = new Date(item.time_period_start);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        return `${day}/${month}`;
-      });
-
-      setHistoricalData({ prices, labels });
       updatePriceChart(cryptoId, {
-        values: prices,
-        labels,
+        values: data.map((d: { rate_close: number }) => d.rate_close),
+        labels: data.map((d: { time_period_start: string }) => d.time_period_start),
         lastUpdated: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error fetching historical data:', error);
-      // On error, use cached data if available
-      if (chartData?.values.length) {
-        setHistoricalData({
-          prices: chartData.values,
-          labels: chartData.labels
-        });
-      }
+      console.error('Failed to load chart data:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCustomDateRange = (startDate: Date, endDate: Date) => {
-    console.log('Selected date range:', {
-      startDate: startDate.toLocaleDateString(),
-      endDate: endDate.toLocaleDateString(),
-      daysBetween: Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-    });
-    
-    setIsFilterVisible(false);
-    fetchHistoricalDataWithCustomRange(startDate, endDate);
-  };
+  useEffect(() => {
+
+    const endDate = new Date();
+    const startDate = new Date(endDate);
+    startDate.setDate(startDate.getDate() - 1);
+    handleDateRangeApply(startDate, endDate);
+  }, []);
+
+  if (!asset) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Text>Asset not found</Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
+        <View style={styles.assetInfo}>
+        <Text style={styles.assetSymbol}>{cryptoId}</Text>
+
+      </View>
       <View style={styles.header}>
-        <Text style={styles.symbol}>{symbol}</Text>
-        <TouchableOpacity 
-          style={styles.filterButton}
-          onPress={() => setIsFilterVisible(true)}
-        >
-          <Text style={styles.filterText}>Filter</Text>
-        </TouchableOpacity>
+        <PriceDisplay cryptoId={cryptoId.toLowerCase()} />
       </View>
 
-      <PriceDisplay cryptoId={cryptoId} />
+    
 
-      <View style={styles.chartContainer}>
+      <View style={styles.chartSection}>
+        <View style={styles.chartHeader}>
+          <Text style={styles.chartTitle}>Price History</Text>
+          <TouchableOpacity 
+            style={styles.filterButton}
+            onPress={() => setIsFilterVisible(true)}
+          >
+            <Text style={styles.filterText}>Filter</Text>
+          </TouchableOpacity>
+        </View>
+
+        <DateRangeFilter
+          visible={isFilterVisible}
+          onClose={() => setIsFilterVisible(false)}
+          onApply={handleDateRangeApply}
+        />
+        
         {isLoading ? (
-          <ActivityIndicator size="large" color={colors.primary} testID="loading-indicator" />
-        ) : historicalData.prices.length > 0 ? (
-          <PriceChart
-            data={historicalData.prices}
-            labels={historicalData.labels}
-            currency={settings.currency}
-          />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
         ) : (
-          <Text style={styles.noDataText} testID="no-data-message">No data available</Text>
+          <PriceChart data={priceChart || {values: [], labels: []}} />
         )}
       </View>
 
-      <BalanceDisplay cryptoId={cryptoId} />
-
-      <DateRangeFilter
-        visible={isFilterVisible}
-        onClose={() => setIsFilterVisible(false)}
-        onApply={handleCustomDateRange}
-      />
+      <View style={styles.balanceSection}>
+        <BalanceDisplay cryptoId={cryptoId.toLowerCase()} />
+      </View>
     </SafeAreaView>
   );
 };

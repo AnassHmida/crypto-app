@@ -1,153 +1,171 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   SafeAreaView,
-  Modal,
-  View,
-  TextInput,
+  ScrollView,
+  RefreshControl,
   TouchableOpacity,
   Text,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 import {styles} from './styles';
-import useCryptoStore from '../../store/useCryptoStore';
 import AssetItem from '../../components/AssetItem';
-import PortfolioHeader from '../../components/PortfolioHeader';
+import PortfolioHeader from '../../components/portfolio/PortfolioHeader';
 import RefreshableList from '../../components/common/RefreshableList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/types';
 import socketService from '../../services/socket';
-import {colors} from '../../styles/colors';
-import { SUPPORTED_CRYPTOS } from '../../constants/supportedCryptos';
 import AddAssetModal from '../../components/AddAssetModal';
-import {ApiService} from '../../services/api/ApiService';
-
-export interface Asset {
-  symbol: string;
-  amount: number;
-  currentPrice: number;
-  percentageChange: number;
-  value: number;
-}
+import ApiService from '../../services/api/ApiService';
+import useAssetStore from '../../store/useAssetStore';
+import useSettingsStore from '../../store/useSettingsStore';
+import useChartStore from '../../store/useChartStore';
 
 type PortfolioScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  'MainTabs'
+  'Portfolio'
 >;
 
 const PortfolioScreen = () => {
-  const {assets, totalValue, isLoading, settings, addAsset, removeAsset} = useCryptoStore();
+  const assets = useAssetStore(state => state.assets);
+  const totalValue = useAssetStore(state => state.totalValue);
+  const settings = useSettingsStore(state => state.settings);
+  const convertAmount = useSettingsStore(state => state.convertAmount);
+  const { addAsset, removeAsset, updateAssetAmount } = useAssetStore();
+
+  
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedAssets, setSelectedAssets] = useState<string[]>([]);
   const navigation = useNavigation<PortfolioScreenNavigationProp>();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     socketService.connect();
-
-
-    return () => {
-      socketService.disconnect();
-    };
+    return () => socketService.disconnect();
   }, []);
 
-  const handleRefresh = async () => {
-    console.log('🔄 Refreshing...');
-    socketService.disconnect();
-    socketService.connect();
-    await ApiService.getInstance().fetchLatestPrices();
-  };
+  useEffect(() => {
+    if (!isSelectionMode) {
+      setSelectedAssets([]);
+    }
+  }, [isSelectionMode]);
 
-  const handleAddPress = () => setIsAddModalVisible(true);
-  
+ 
+
   const handleAddAsset = (symbol: string, amount: number) => {
     const existingAsset = assets.find(
       asset => asset.symbol.toLowerCase() === symbol.toLowerCase()
     );
 
     if (existingAsset) {
-      // If asset exists, replace its amount
-      useCryptoStore.getState().updateAssetAmount(symbol.toUpperCase(), amount);
+      updateAssetAmount(symbol.toUpperCase(), amount);
     } else {
-      // If it's a new asset, add it
       addAsset(symbol.toUpperCase(), amount);
     }
     setIsAddModalVisible(false);
   };
 
-  const handleAssetLongPress = (symbol: string) => {
-    setIsSelectionMode(true);
-    setSelectedAssets([symbol]);
-  };
-
-  const handleAssetPress = (symbol: string) => {
-    if (isSelectionMode) {
-      setSelectedAssets(prev => {
-        const newSelected = prev.includes(symbol) 
-          ? prev.filter(s => s !== symbol)
-          : [...prev, symbol];
-
-        if (newSelected.length === 0) {
-          setIsSelectionMode(false);
-        }
-        return newSelected;
-      });
-    } else {
-      navigation.navigate('CryptoDetails', {
-        cryptoId: symbol.toLowerCase(),
-      });
-    }
-  };
-
-  const handleHeaderPress = () => {
-    if (isSelectionMode) {
-      setIsSelectionMode(false);
-      setSelectedAssets([]);
-    }
-  };
-
   const handleDeleteSelected = () => {
     selectedAssets.forEach(symbol => removeAsset(symbol));
-    setIsSelectionMode(false);
     setSelectedAssets([]);
+    setIsSelectionMode(false);
   };
 
-  const renderAsset = (asset: Asset) => (
+  const renderItem = useCallback(({symbol, amount, value, percentageChange}: {
+    symbol: string;
+    amount: number;
+    value: number;
+    percentageChange: number;
+  }) => (
     <AssetItem
-      symbol={asset.symbol}
-      amount={asset.amount}
-      value={asset.value}
-      percentageChange={asset.percentageChange}
+      symbol={symbol}
+      amount={amount}
+      value={convertAmount(value, 'USD', settings.currency)}
+      percentageChange={percentageChange}
       currency={settings.currency}
-      onPress={() => handleAssetPress(asset.symbol)}
-      onLongPress={() => handleAssetLongPress(asset.symbol)}
-      isSelected={selectedAssets.includes(asset.symbol)}
+      onPress={() => {
+        if (isSelectionMode) {
+          setSelectedAssets(prev => {
+            const newSelected = prev.includes(symbol)
+              ? prev.filter(s => s !== symbol)
+              : [...prev, symbol];
+              
+            if (newSelected.length === 0) {
+              setIsSelectionMode(false);
+              return [];
+            }
+            
+            return newSelected;
+          });
+        } else {
+          navigation.navigate('CryptoDetails', {cryptoId: symbol});
+        }
+      }}
+      isSelected={selectedAssets.includes(symbol)}
+      onLongPress={() => {
+        setIsSelectionMode(true);
+        setSelectedAssets([symbol]);
+      }}
     />
-  );
+  ), [settings.currency, selectedAssets, navigation, convertAmount, isSelectionMode]);
+
+
+
+  const fetchPortfolioHistory = async () => {
+    console.log('fetching portfolio history');
+    const data = await ApiService.getInstance().getPortfolioHistoricalData(
+      assets,
+      settings.currency
+    );
+    console.log('data ==', data)
+    useChartStore.getState().updatePortfolioHistory(data);
+  };
+
+  const displayValue = useMemo(() => {
+    return convertAmount(totalValue, 'USD', settings.currency);
+  }, [totalValue, settings.currency]);
+
+
+  useEffect(() => {
+    if (assets.length > 0) {
+      fetchPortfolioHistory();
+    }
+  }, [assets.length, settings.currency]);
+ 
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      socketService.disconnect();
+      socketService.connect();
+      await fetchPortfolioHistory();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <RefreshableList
-        testID="refreshable-list"
-        data={assets}
-        renderItem={renderAsset}
-        isLoading={isLoading}
-        onRefresh={handleRefresh}
-        ListHeaderComponent={
-          <PortfolioHeader 
-            totalValue={totalValue} 
-            onAddPress={handleAddPress}
-            isSelectionMode={isSelectionMode}
-            selectedCount={selectedAssets.length}
-            onDeletePress={handleDeleteSelected}
-            onHeaderPress={handleHeaderPress}
-          />
-        }
-        keyExtractor={item => item.symbol}
-      />
+      
+        <RefreshableList
+          testID="refreshable-list"
+          data={assets}
+          isLoading={isRefreshing}
+          onRefresh={handleRefresh}
+          ListHeaderComponent={
+            <PortfolioHeader
+              totalValue={displayValue}
+              onAddPress={() => setIsAddModalVisible(true)}
+              isSelectionMode={isSelectionMode}
+              selectedCount={selectedAssets.length}
+              onDeletePress={handleDeleteSelected}
+              onHeaderPress={() => setIsSelectionMode(false)}
+            />
+          }
+          renderItem={renderItem}
+        />
 
-  
-
+      
       <AddAssetModal
         visible={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}
