@@ -1,6 +1,10 @@
 import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   SafeAreaView,
+  ScrollView,
+  RefreshControl,
+  TouchableOpacity,
+  Text,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {styles} from './styles';
@@ -142,22 +146,26 @@ const PortfolioScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <RefreshableList
-        data={assets}
-        isLoading={isRefreshing}
-        onRefresh={handleRefresh}
-        ListHeaderComponent={
-          <PortfolioHeader
-            totalValue={displayValue}
-            onAddPress={() => setIsAddModalVisible(true)}
-            isSelectionMode={isSelectionMode}
-            selectedCount={selectedAssets.length}
-            onDeletePress={handleDeleteSelected}
-            onHeaderPress={() => setIsSelectionMode(false)}
-          />
-        }
-        renderItem={renderItem}
-      />
+      
+        <RefreshableList
+          testID="refreshable-list"
+          data={assets}
+          isLoading={isRefreshing}
+          onRefresh={handleRefresh}
+          ListHeaderComponent={
+            <PortfolioHeader
+              totalValue={displayValue}
+              onAddPress={() => setIsAddModalVisible(true)}
+              isSelectionMode={isSelectionMode}
+              selectedCount={selectedAssets.length}
+              onDeletePress={handleDeleteSelected}
+              onHeaderPress={() => setIsSelectionMode(false)}
+            />
+          }
+          renderItem={renderItem}
+        />
+
+      
       <AddAssetModal
         visible={isAddModalVisible}
         onClose={() => setIsAddModalVisible(false)}

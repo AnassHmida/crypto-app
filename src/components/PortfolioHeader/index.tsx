@@ -51,15 +51,16 @@ const PortfolioHeader = React.memo(({
           </Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          onPress={isSelectionMode ? onDeletePress : onAddPress} 
+  testID={isSelectionMode ? 'delete-button' : 'add-asset-button'}
+  onPress={isSelectionMode ? onDeletePress : onAddPress} 
           style={styles.actionButton}
         >
           <Icon 
             name={isSelectionMode ? "delete" : "add-circle-outline"} 
             size={24} 
-            color={isSelectionMode ? colors.error : colors.primary} 
+              color={isSelectionMode ? colors.error : colors.primary} 
           />
-        </TouchableOpacity>
+        </TouchableOpacity> 
       </View>
     </>
   );

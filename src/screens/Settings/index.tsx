@@ -36,7 +36,7 @@ const SettingsScreen = () => {
             value={settings.priceAlerts}
             onValueChange={() => updateSettings({ priceAlerts: !settings.priceAlerts })}
           />
-          {settings.priceAlerts && <AlertsManager />}
+          {settings.priceAlerts && <AlertsManager testID="alerts-manager" />}
         </>
       ),
     },

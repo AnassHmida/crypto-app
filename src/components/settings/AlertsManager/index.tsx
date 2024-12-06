@@ -8,7 +8,11 @@ import PriceInput from '../PriceInput/PriceInput';
 import { colors } from '../../../styles/colors';
 import AlertList from '../AlertList/AlertList';
 
-const AlertsManager = () => {
+interface AlertsManagerProps {
+    testID?: string;
+  }
+
+const AlertsManager = ({ testID }: AlertsManagerProps) => {
   const { alerts, addAlert, removeAlert } = useAlertStore();
   const [selectedAsset, setSelectedAsset] = useState(SUPPORTED_CRYPTOS[0].symbol);
   const [targetPrice, setTargetPrice] = useState('');
@@ -41,7 +45,7 @@ const AlertsManager = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View testID={testID} style={styles.container}>
       <View style={styles.addSection}>
         <Text style={styles.title}>Add Price Alert</Text>
         
