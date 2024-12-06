@@ -1,76 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import { View, Dimensions, Text, Modal, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import useCryptoStore from '../../../store/useCryptoStore';
 import { styles } from './styles';
 import { colors } from '../../../styles/colors';
+import useSettingsStore from '../../../store/useSettingsStore';
 
 interface PriceChartProps {
-  data: number[];
-  labels: string[];
-  currency: string;
-  symbol: string;
+  data: {
+    values: number[];
+    labels: string[];
+  };
 }
 
-const PriceChart = ({ data, labels, currency, symbol }: PriceChartProps) => {
-  const screenWidth = Dimensions.get('window').width;
-  const containerWidth = screenWidth;
-  const [selectedPoint, setSelectedPoint] = useState<{
-    value: number;
-    date: string;
-    index: number;
-  } | null>(null);
-
-  const updatePriceChart = useCryptoStore(state => state.updatePriceChart);
-  const cachedChartData = useCryptoStore(state => state.chartData.prices[symbol]);
-
-  useEffect(() => {
-    if (data.length > 0) {
-      updatePriceChart(symbol, {
-        values: data,
-        labels,
-        lastUpdated: new Date().toISOString()
-      });
-    }
-  }, [data, labels]);
-
-  const chartData = data.length > 0 ? data : cachedChartData?.values || [];
-  const chartLabels = labels.length > 0 ? labels : cachedChartData?.labels || [];
-
-  const processedLabels = chartLabels.map((label, index) => {
-    if (chartLabels.length <= 5) return label;
-    return index === 0 || index === chartLabels.length - 1 ? label : '';
-  });
-
-  const handleDataPointClick = ({ index, value }: { index: number; value: number }) => {
-    setSelectedPoint({
-      value,
-      date: chartLabels[index],
-      index
-    });
-  };
-
-  if (chartData.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text testID="no-data-message">No data available</Text>
-      </View>
-    );
+const PriceChart = ({ data }: PriceChartProps) => {
+  const currency = useSettingsStore(state => state.settings.currency);
+  const convertAmount = useSettingsStore(state => state.convertAmount);
+  
+  if (!data?.values?.length) {
+    return null;
   }
 
+  const convertedValues = data.values.map(value => 
+    convertAmount(value, 'USD', currency)
+  );
+
+  const minValue = Math.min(...convertedValues);
+  const maxValue = Math.max(...convertedValues);
+  const yAxisRange = maxValue - minValue;
+
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', { month: '2-digit', day: '2-digit' }).format(date);
+  };
+
+  const filteredLabels = [formatDate(data.labels[0]), formatDate(data.labels[data.labels.length - 1])];
+  const labelIndexes = [0, data.labels.length - 1];
+
   return (
-    <View testID="price-chart">
+    <View style={styles.container}>
       <LineChart
         data={{
-          labels: processedLabels,
-          datasets: [{ 
-            data: chartData.length > 0 ? chartData : [0],
-            strokeWidth: 2,
-            color: (opacity = 1) => `rgba(81, 145, 240, ${opacity})`,
-          }],
+          labels: filteredLabels,
+          datasets: [{
+            data: convertedValues
+          }]
         }}
-        width={containerWidth}
-        height={containerWidth}
+        width={Dimensions.get('window').width - 16}
+        height={220}
         chartConfig={{
           backgroundColor: 'transparent',
           backgroundGradientFrom: colors.background,
@@ -82,26 +59,27 @@ const PriceChart = ({ data, labels, currency, symbol }: PriceChartProps) => {
             borderRadius: 8,
           },
           propsForDots: {
-            r: "4",
-            strokeWidth: "2",
-            stroke: colors.background,
+            r: "0",
+            strokeWidth: "0",
           },
           propsForBackgroundLines: {
             stroke: "transparent",
           },
+          propsForLabels: {
+            fontSize: "10",
+          },
+          formatYLabel: (value) => Number(value).toFixed(2),
+          count: 5,
         }}
         bezier
         style={styles.chart}
         withInnerLines={false}
         withOuterLines={false}
-        withVerticalLines={true}
-        withHorizontalLines={true}
-        withVerticalLabels={true}
-        withHorizontalLabels={true}
-        onDataPointClick={handleDataPointClick}
-        getDotColor={(dataPoint, index) => 
-          selectedPoint?.index === index ? colors.primary : 'rgba(81, 145, 240, 1)'
-        }
+        withVerticalLines={false}
+        withHorizontalLines={false}
+        hidePointsAtIndex={Array.from({ length: data.labels.length }, (_, i) => 
+          !labelIndexes.includes(i) ? i : -1
+        ).filter(i => i !== -1)}
       />
     </View>
   );

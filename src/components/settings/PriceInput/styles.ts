@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 50,
-    backgroundColor: colors.background.tertiary,
+    backgroundColor: colors.background,
     borderRadius: 8,
     paddingHorizontal: 16,
     marginRight: 8,
@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
   typeButton: {
-    backgroundColor: colors.background.tertiary,
+    backgroundColor: colors.background,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,

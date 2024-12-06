@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import useCryptoStore from '../../../store/useCryptoStore';
+import useAlertStore from '../../../store/useAlertStore';
 import { styles } from './styles';
 import { SUPPORTED_CRYPTOS } from '../../../constants/supportedCryptos';
-import PriceInput from './PriceInput';
+import PriceInput from '../PriceInput/PriceInput';
 import { colors } from '../../../styles/colors';
-import AlertList from './AlertList';
+import AlertList from '../AlertList/AlertList';
 
-const AlertsManager = () => {
-  const { alerts, addAlert, removeAlert } = useCryptoStore();
+interface AlertsManagerProps {
+    testID?: string;
+  }
+
+const AlertsManager = ({ testID }: AlertsManagerProps) => {
+  const { alerts, addAlert, removeAlert } = useAlertStore();
   const [selectedAsset, setSelectedAsset] = useState(SUPPORTED_CRYPTOS[0].symbol);
   const [targetPrice, setTargetPrice] = useState('');
   const [isAbove, setIsAbove] = useState(true);
@@ -22,7 +26,7 @@ const AlertsManager = () => {
     }
   };
 
-  const renderCryptoOption = ({ item }) => (
+  const renderCryptoOption = ({ item }: { item: { symbol: string; name: string } }) => (
     <TouchableOpacity
       style={[
         styles.cryptoOption,
@@ -41,7 +45,7 @@ const AlertsManager = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View testID={testID} style={styles.container}>
       <View style={styles.addSection}>
         <Text style={styles.title}>Add Price Alert</Text>
         

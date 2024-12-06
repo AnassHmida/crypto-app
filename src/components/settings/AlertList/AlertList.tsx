@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, FlatList } from 'react-native';
-import { styles } from './styles';
-import { PriceAlert } from '../../../store/useCryptoStore';
+import { styles } from '../AlertsManager/styles';
+import { PriceAlert } from '../../../store/useAlertStore';
 
 interface AlertListProps {
   alerts: PriceAlert[];

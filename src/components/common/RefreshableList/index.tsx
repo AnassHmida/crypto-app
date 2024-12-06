@@ -7,6 +7,7 @@ interface RefreshableListProps<T> {
   renderItem: (item: T) => React.ReactElement;
   isLoading: boolean;
   onRefresh: () => void;
+  testID?: string;
   ListHeaderComponent?: React.ComponentType<any> | React.ReactElement | null;
   contentContainerStyle?: ViewStyle;
   keyExtractor?: (item: T, index: number) => string;
@@ -16,12 +17,14 @@ const RefreshableList = <T extends {}>({
   data,
   renderItem,
   isLoading,
+  testID,
   onRefresh,
   ListHeaderComponent,
   contentContainerStyle,
   keyExtractor = (_, index) => index.toString(),
 }: RefreshableListProps<T>) => (
   <FlatList
+    testID={testID}
     data={data}
     keyExtractor={keyExtractor}
     renderItem={({item}) => renderItem(item)}
@@ -30,7 +33,6 @@ const RefreshableList = <T extends {}>({
     refreshControl={
       <RefreshControl testID="refreshable-list-control" refreshing={isLoading} onRefresh={onRefresh} />
     }
-    testID="refreshable-list"
   />
 );
 

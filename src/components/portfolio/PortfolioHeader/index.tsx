@@ -2,9 +2,9 @@ import React from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {styles} from './styles';
-import useSettingsStore from '../../store/useSettingsStore';
-import PortfolioChart from '../portfolio/PortfolioChart';
-import { colors } from '../../styles/colors';
+import useSettingsStore from '../../../store/useSettingsStore';
+import PortfolioChart from '../PortfolioChart';
+import { colors } from '../../../styles/colors';
 
 interface PortfolioHeaderProps {
   totalValue: number;

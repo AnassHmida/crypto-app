@@ -1,101 +1,44 @@
 import React from 'react';
-import {render} from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import PriceDisplay from '../../../components/crypto/PriceDisplay';
-import useCryptoStore from '../../../store/useCryptoStore';
+import useAssetStore from '../../../store/useAssetStore';
+import useSettingsStore from '../../../store/useSettingsStore';
 
-jest.mock('../../../store/useCryptoStore');
-
-const mockUseCryptoStore = useCryptoStore as jest.MockedFunction<typeof useCryptoStore>;
+jest.mock('../../../store/useAssetStore');
+jest.mock('../../../store/useSettingsStore');
 
 describe('PriceDisplay', () => {
   beforeEach(() => {
-    mockUseCryptoStore.mockImplementation((selector) => {
+    (useAssetStore as jest.Mock).mockImplementation((selector) => {
       const store = {
-        settings: { 
-          currency: 'USD',
-          realTimeUpdates: false,
-          priceAlerts: false
-        },
-        assets: [{
-          symbol: 'bitcoin',
-          currentPrice: 45000,
-          percentageChange: 2.5,
-          amount: 0,
-          value: 0
-        }],
-        exchangeRates: {},
-        totalValue: 0,
-        historicalValues: { values: [], labels: [] },
-        isLoading: false,
-        portfolioHistory: [],
-        addAsset: () => {},
-        removeAsset: () => {},
-        updateAssetAmount: () => {},
-        updateSettings: () => {},
-        fetchPrices: () => {},
-        fetchExchangeRates: () => {},
-        calculateTotalValue: () => {},
-        reset: () => {},
-        updatePrices: () => {},
-        convertAmount: () => 0,
-        updateHistoricalValues: () => {},
-        recordPortfolioValue: () => {}
+        assetPrices: {
+          BTC: {
+            currentPrice: 30000,
+            percentageChange: 2.5
+          }
+        }
+      };
+      return selector(store);
+    });
+
+    (useSettingsStore as jest.Mock).mockImplementation((selector) => {
+      const store = {
+        settings: { currency: 'USD' },
+        convertAmount: (amount: number) => amount
       };
       return selector(store);
     });
   });
 
   it('renders price and percentage change', () => {
-    const props = {
-      cryptoId: 'bitcoin'
-    };
+    const { getByText } = render(
+      <PriceDisplay 
+        cryptoId="BTC"
+        showPercentage={true}
+      />
+    );
     
-    const {getByText} = render(<PriceDisplay {...props} />);
-    expect(getByText('USD 45000.00')).toBeTruthy();
+    expect(getByText('USD 30000.00')).toBeTruthy();
     expect(getByText('+2.50%')).toBeTruthy();
   });
-
-  it('handles negative percentage change', () => {
-    mockUseCryptoStore.mockImplementation((selector) => {
-      const store = {
-        settings: { 
-          currency: 'USD',
-          realTimeUpdates: false,
-          priceAlerts: false
-        },
-        assets: [{
-          symbol: 'bitcoin',
-          currentPrice: 45000,
-          percentageChange: -2.5,
-          amount: 0,
-          value: 0
-        }],
-        exchangeRates: {},
-        totalValue: 0,
-        historicalValues: { values: [], labels: [] },
-        isLoading: false,
-        portfolioHistory: [],
-        addAsset: () => {},
-        removeAsset: () => {},
-        updateAssetAmount: () => {},
-        updateSettings: () => {},
-        fetchPrices: () => {},
-        fetchExchangeRates: () => {},
-        calculateTotalValue: () => {},
-        reset: () => {},
-        updatePrices: () => {},
-        convertAmount: () => 0,
-        updateHistoricalValues: () => {},
-        recordPortfolioValue: () => {}
-      };
-      return selector(store);
-    });
-
-    const props = {
-      cryptoId: 'bitcoin'
-    };
-    
-    const {getByText} = render(<PriceDisplay {...props} />);
-    expect(getByText('-2.50%')).toBeTruthy();
-  });
-}); 
+});

@@ -1,4 +1,6 @@
-import useCryptoStore from "../../store/useCryptoStore";
+import useAssetStore from "../../store/useAssetStore";
+import useSettingsStore from "../../store/useSettingsStore";
+import useAlertStore from "../../store/useAlertStore";
 import { SUPPORTED_CRYPTOS } from '../../constants/supportedCryptos';
 import { COINAPI_WS_URL, COINAPI_KEY } from '@env';
 
@@ -11,8 +13,11 @@ class SocketService {
     price: number;
   }> = {};
   
-
-  private readonly UPDATE_THRESHOLD = 2000;
+  private readonly UPDATE_THRESHOLD = 1000;
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private baseDelay = 1000; 
+  private reconnectTimeout: NodeJS.Timeout | null = null;
 
   connect() {
     try {
@@ -21,7 +26,8 @@ class SocketService {
 
       this.ws.onopen = () => {
         console.log('Connected to CoinAPI!');
-        
+        this.reconnectAttempts = 0;
+
         const hello = {
           type: "hello",
           heartbeat: false,
@@ -42,7 +48,6 @@ class SocketService {
             const currentTime = Date.now();
             const newPrice = parseFloat(data.price);
             
-
             const lastUpdateData = this.lastUpdate[symbol];
             if (!lastUpdateData || 
                 (currentTime - lastUpdateData.timestamp) >= this.UPDATE_THRESHOLD) {
@@ -51,13 +56,15 @@ class SocketService {
                 ? ((newPrice - lastUpdateData.price) / lastUpdateData.price) * 100
                 : 0;
     
-              useCryptoStore.getState().updatePrices({
+              const updates = {
                 [symbol]: {
                   price: newPrice,
                   percentageChange
                 }
-              });
+              };
 
+              useAssetStore.getState().updatePrices(updates);
+              useAlertStore.getState().checkAlerts(updates);
 
               this.lastUpdate[symbol] = {
                 timestamp: currentTime,
@@ -72,24 +79,47 @@ class SocketService {
 
       this.ws.onerror = (error) => {
         console.error('❌ WebSocket error:', error);
+        this.attemptReconnect();
       };
 
       this.ws.onclose = () => {
         console.log('🔌 WebSocket closed');
-        this.lastUpdate = {};
+        this.attemptReconnect();
       };
 
     } catch (error) {
       console.error('❌ Connection failed:', error);
+      this.attemptReconnect();
     }
   }
 
+  private attemptReconnect() {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+    }
+
+    const delay = Math.min(
+      this.baseDelay * Math.pow(2, this.reconnectAttempts),
+      30000 
+    );
+
+    this.reconnectTimeout = setTimeout(() => {
+      console.log(`Attempting reconnect ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`);
+      this.reconnectAttempts++;
+      this.connect();
+    }, delay);
+  }
+
   disconnect() {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+    }
     if (this.ws) {
       this.ws.close();
       this.ws = null;
       this.lastUpdate = {};
     }
+    this.reconnectAttempts = 0;
   }
 }
 
