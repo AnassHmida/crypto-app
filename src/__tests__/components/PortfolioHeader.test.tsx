@@ -1,6 +1,6 @@
 import React from 'react';
 import {render} from '@testing-library/react-native';
-import PortfolioHeader from '../../components/PortfolioHeader';
+import PortfolioHeader from '../../components/portfolio/PortfolioHeader';
 
 describe('PortfolioHeader', () => {
   it('renders portfolio value correctly', () => {

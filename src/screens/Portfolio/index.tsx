@@ -9,7 +9,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {styles} from './styles';
 import AssetItem from '../../components/AssetItem';
-import PortfolioHeader from '../../components/PortfolioHeader';
+import PortfolioHeader from '../../components/portfolio/PortfolioHeader';
 import RefreshableList from '../../components/common/RefreshableList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../navigation/types';
@@ -127,11 +127,11 @@ const PortfolioScreen = () => {
 
 
   useEffect(() => {
-  
     if (assets.length > 0) {
       fetchPortfolioHistory();
     }
-  }, [settings.currency]);
+  }, [assets.length, settings.currency]);
+ 
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
