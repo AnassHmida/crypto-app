@@ -7,75 +7,60 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-  },
-  symbol: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  filterButton: {
-    backgroundColor: colors.gray.light,
-    padding: 8,
-    borderRadius: 8,
-  },
-  filterText: {
-    fontSize: 16,
-  },
-  priceContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: colors.gray.light,
   },
-  currentPrice: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  percentageChange: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  positive: {
-    color: colors.success,
-  },
-  negative: {
-    color: colors.error,
-  },
-  chartContainer: {
-    flex: 1,
-    borderRadius: 8,
-    justifyContent: 'center',
+  assetInfo: {
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray.light,
   },
-  noDataText: {
-    fontSize: 16,
-    color: colors.text.secondary,
-    textAlign: 'center',
+  assetSymbol: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text.primary,
+    marginRight: 8,
+  },
+  chartSection: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+  },
+  chartHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   chartTitle: {
     fontSize: 16,
-    color: colors.text.secondary,
+    fontWeight: '600',
+    color: colors.text.primary,
   },
-  balanceContainer: {
+  filterButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: colors.gray.light,
+    borderRadius: 8,
+  },
+  filterText: {
+    color: colors.text.primary,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  balanceSection: {
     padding: 16,
     borderTopWidth: 1,
     borderTopColor: colors.gray.light,
-  },
-  balanceTitle: {
-    fontSize: 18,
-    color: colors.text.secondary,
-    marginBottom: 8,
-  },
-  balanceAmount: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  cryptoAmount: {
-    fontSize: 16,
-    color: colors.text.secondary,
-  },
+  }
 }); 

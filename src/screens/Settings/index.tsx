@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import useCryptoStore from '../../store/useCryptoStore';
 import { styles } from './styles';
 import CurrencySelector from '../../components/settings/CurrencySelector';
 import SettingSwitch from '../../components/common/SettingSwitch';
 import AlertsManager from '../../components/settings/AlertsManager';
+import useSettingsStore from '../../store/useSettingsStore';
 
 export const AVAILABLE_CURRENCIES = ['USD', 'EUR', 'GBP'];
 
 const SettingsScreen = () => {
-  const { settings, updateSettings } = useCryptoStore();
+  const settings = useSettingsStore(state => state.settings);
+  const updateSettings = useSettingsStore(state => state.updateSettings);
 
   const sections = [
     {
@@ -39,21 +40,18 @@ const SettingsScreen = () => {
         </>
       ),
     },
-  
   ];
-
-  const renderItem = ({ item }) => (
-    <View>
-      <Text style={styles.sectionTitle}>{item.title}</Text>
-      <View style={styles.section}>{item.component}</View>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         data={sections}
-        renderItem={renderItem}
+        renderItem={({ item }) => (
+          <View>
+            <Text style={styles.sectionTitle}>{item.title}</Text>
+            <View style={styles.section}>{item.component}</View>
+          </View>
+        )}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
       />

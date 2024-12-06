@@ -2,7 +2,7 @@ import React from 'react';
 import {View, Text, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {styles} from './styles';
-import useCryptoStore from '../../store/useCryptoStore';
+import useSettingsStore from '../../store/useSettingsStore';
 import PortfolioChart from '../portfolio/PortfolioChart';
 import { colors } from '../../styles/colors';
 
@@ -15,7 +15,7 @@ interface PortfolioHeaderProps {
   onHeaderPress: () => void;
 }
 
-const PortfolioHeader = ({
+const PortfolioHeader = React.memo(({
   totalValue, 
   onAddPress, 
   isSelectionMode,
@@ -23,8 +23,8 @@ const PortfolioHeader = ({
   onDeletePress,
   onHeaderPress
 }: PortfolioHeaderProps) => {
-  const currency = useCryptoStore(state => state.settings.currency);
-  
+  const currency = useSettingsStore(state => state.settings.currency);
+  console.log('pro')
   return (
     <>
       <View style={styles.totalValue}>
@@ -61,12 +61,8 @@ const PortfolioHeader = ({
           />
         </TouchableOpacity>
       </View>
-
-      <View testID="selection-mode-header">
-    
-      </View>
     </>
   );
-};
+});
 
 export default PortfolioHeader;

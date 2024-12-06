@@ -4,13 +4,13 @@ import { colors } from '../../../styles/colors';
 export const styles = StyleSheet.create({
   // Main container styles
   container: {
-    backgroundColor: colors.background.secondary,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 16,
     marginTop: 16,
   },
   
-  // Add section styles
+
   addSection: {
     marginBottom: 20,
   },
@@ -21,9 +21,9 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
   
-  // Picker styles
+  
   pickerContainer: {
-    backgroundColor: colors.background.tertiary,
+    backgroundColor: colors.background,
     borderRadius: 8,
     marginBottom: 12,
     overflow: 'hidden',
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   
-  // Input row styles
+
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 50,
-    backgroundColor: colors.background.tertiary,
+    backgroundColor: colors.background,
     borderRadius: 8,
     paddingHorizontal: 16,
     marginRight: 8,
@@ -50,9 +50,9 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
   
-  // Type button styles
+
   typeButton: {
-    backgroundColor: colors.background.tertiary,
+    backgroundColor: colors.background,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
   
-  // Add button styles
+
   addButton: {
     backgroundColor: colors.primary,
     padding: 16,
@@ -84,12 +84,12 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   
-  // Alert list styles
+
   alertItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.background.tertiary,
+    backgroundColor: colors.background,
     padding: 16,
     borderRadius: 8,
     marginBottom: 8,
@@ -105,7 +105,7 @@ export const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
   
-  // Delete button styles
+
   deleteButton: {
     backgroundColor: colors.error,
     paddingVertical: 8,
@@ -118,7 +118,7 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
   
-  // Empty state styles
+ 
   emptyText: {
     textAlign: 'center',
     color: colors.text.secondary,
@@ -130,7 +130,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.background.tertiary,
+    backgroundColor: colors.background,
     padding: 16,
     borderRadius: 8,
     marginBottom: 12,
